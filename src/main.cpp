@@ -34,8 +34,6 @@ int main()
         if (TreeInsert(&tree2, 30))
             break;
 
-        if (TreeDump(&tree2))
-            break;
     }
     while (0);
 

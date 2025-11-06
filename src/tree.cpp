@@ -19,6 +19,10 @@ TreeErr_t TreeCtor(Tree_t* tree)
 
     tree->size  = 0;
 
+    TREE_CALL_DUMP(tree, "DUMP AFTER CTOR ", 0);
+
+    DPRINTF("CTOR END\n");
+
     return TREE_SUCCESS;
 }
 
@@ -83,6 +87,8 @@ TreeErr_t TreeInsert(Tree_t* tree, TreeElem_t data)
             node = node->right;
         }
     }
+
+    TREE_CALL_DUMP(tree, "DUMP AFTER INSERT DATA TO PTR = %zu", (size_t) new_node);
 
     return TREE_SUCCESS;
 }

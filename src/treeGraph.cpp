@@ -2,11 +2,124 @@
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeDump(const Tree_t* tree)
+int SetDirectories(char* log_filename, char* log_dir)
+{
+    assert(log_filename != NULL);
+    assert(log_dir      != NULL);
+
+    time_t rawtime = time(NULL);
+
+    struct tm* info = localtime(&rawtime);
+
+    char time_dir[MAX_FILENAME_LEN / 2] = "";
+
+    static char image_dir [MAX_FILENAME_LEN] = "";
+    static char dot_dir   [MAX_FILENAME_LEN] = "";
+
+    strftime(time_dir, sizeof(time_dir), "%d%m%Y_%H%M%S", info);
+
+    snprintf(log_dir, 100, "log/%s", time_dir);
+    mkdir(log_dir, 0777);
+
+    sprintf(image_dir, "log/%s/svg", time_dir);
+
+    DPRINTF("image_dir = %s;\n", image_dir);
+    mkdir(image_dir, 0777);
+
+    DPRINTF("image_dir = %s;\n", image_dir);
+
+    sprintf(dot_dir, "log/%s/dot", time_dir);
+
+    DPRINTF("dot_dir   = %s;\n", dot_dir);
+    mkdir(dot_dir, 0777);
+
+    sprintf(log_filename, "log/%s/tree.html", time_dir);
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t TreeDump(const Tree_t* tree, const TreeDumpInfo_t* dump_info)
+{
+    assert(tree != NULL);
+
+    static int calls_count = 0;
+    calls_count++;
+
+    static char log_filename [MAX_FILENAME_LEN] = "";
+    static char log_dir      [MAX_FILENAME_LEN] = "";
+
+    if (calls_count == 1)
+    {
+        SetDirectories(log_filename, log_dir);
+    }
+
+    char graph_name[MAX_FILENAME_LEN] = {};
+
+    sprintf(graph_name, "%04d", calls_count);
+
+    FILE* fp = fopen(log_filename, calls_count == 1 ? "w" : "a");
+
+    if (fp == NULL)
+    {
+        PRINTERR("Opening logfile %s failed", log_filename);
+        return TREE_DUMP_ERROR;
+    }
+
+    calls_count++;
+
+    fprintf(fp, "<pre>\n<h3><font color=blue>%s%zu</font></h3>",
+                dump_info->reason,
+                dump_info->command_arg);
+
+    fprintf(fp, dump_info->error == TREE_SUCCESS ?
+                "<font color=green><b>" :
+                "<font color=red><b>ERROR: ");
+
+    fprintf(fp, "%s (code %d)</b></font>\n"
+                "TREE DUMP called from %s at %s:%d\n\n",
+                TREE_STR_ERRORS[dump_info->error],
+                dump_info->error,
+                dump_info->func,
+                dump_info->file,
+                dump_info->line);
+
+    fprintf(fp, "tree [%p]:\n\n", tree);
+
+    fprintf(fp, "size  = %zu;\n", tree->size);
+    fprintf(fp, "dummy = %p;\n", tree->dummy);
+
+    TreeErr_t graph_error = TREE_SUCCESS;
+    if ((graph_error = TreeGraphDump(tree, graph_name, log_dir)))
+    {
+        fclose(fp);
+        return graph_error;
+    }
+
+    fprintf(fp, "\n<img src = svg/%s.svg width = 50%%>\n\n"
+                "============================================================="
+                "=============================================================\n\n",
+                graph_name);
+
+    fclose(fp);
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t TreeGraphDump(const Tree_t* tree,
+                        const char* graph_name,
+                        const char* log_dir)
 {
     assert(tree != NULL); // NOTE: if
 
-    FILE* log = fopen("tree_log.dot", "w");
+    char dot_filename[MAX_FILENAME_LEN] = {};
+
+    sprintf(dot_filename, "%s/dot/%s.dot", log_dir, graph_name);
+
+    FILE* log = fopen(dot_filename, "w");
 
     if (log == NULL)
     {
@@ -27,12 +140,26 @@ TreeErr_t TreeDump(const Tree_t* tree)
         fontcolor = "#3E3A22"
     ];)""\n");
 
-    TreeErr_t error = TREE_SUCCESS;
-
-    if ((error = TreeNodeDump(tree->dummy, log)))
+    if (MakeTreeDefaultNode(tree->dummy, "#3E3A22", "#ecede8", "#3E3A22", "record", log))
     {
-        return error;
+        return TREE_DUMP_ERROR;
     }
+    if (MakeTreeEdges      (tree->dummy, log))
+    {
+        return TREE_DUMP_ERROR;
+    }
+
+    if (tree->dummy->right != NULL)
+    {
+        TreeErr_t error = TREE_SUCCESS;
+
+        if ((error = TreeNodeDump(tree->dummy->right, log)))
+        {
+            return error;
+        }
+    }
+
+    printf("\n");
 
     fprintf(log, "}\n");
 
@@ -40,7 +167,7 @@ TreeErr_t TreeDump(const Tree_t* tree)
 
     // new func
     char command[MAX_COMMAND_LEN] = "";
-    snprintf(command, 200, "dot tree_log.dot -T svg -o tree_log.svg");
+    snprintf(command, 200, "dot %s -T svg -o %s/svg/%s.svg", dot_filename, log_dir, graph_name);
 
     system(command);
 
@@ -89,7 +216,7 @@ TreeErr_t TreeNodeDump(const TreeNode_t* node, FILE* fp)
 
 TreeErr_t TreeSingleNodeDump(const TreeNode_t* node, FILE* fp)
 {
-    if (MakeTreeDefaultNode(node, fp))
+    if (MakeTreeDefaultNode(node, NULL, NULL, NULL, NULL, fp))
     {
         return TREE_DUMP_ERROR;
     }
@@ -135,7 +262,12 @@ int MakeTreeEdges(const TreeNode_t* node, FILE* fp)
 
 //------------------------------------------------------------------------------------------
 
-int MakeTreeDefaultNode(const TreeNode_t* node, FILE* fp)
+int MakeTreeDefaultNode(const TreeNode_t* node,
+                        const char* color,
+                        const char* fillcolor,
+                        const char* fontcolor,
+                        const char* shape,
+                        FILE* fp)
 {
     assert(fp   != NULL);
     assert(node != NULL);
@@ -162,7 +294,7 @@ int MakeTreeDefaultNode(const TreeNode_t* node, FILE* fp)
                                  node->left,
                                  node->right);
 
-    MakeNode(name, label, NULL, NULL, NULL, NULL, fp);
+    MakeNode(name, label, color, fillcolor, fontcolor, shape, fp);
 
     return 0;
 }
