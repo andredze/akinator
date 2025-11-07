@@ -1,8 +1,8 @@
 #include "tree.h"
 #include "treeGraph.h"
-#include <stdlib.h>
+#include "tests.h"
 
-int IsSorted(int* array, size_t size);
+//------------------------------------------------------------------------------------------
 
 int main()
 {
@@ -45,65 +45,9 @@ int main()
         return EXIT_FAILURE;
     }
 
-    const int NUMS_SIZE          = 10;
-    int       numbers[NUMS_SIZE] = {};
-
-    for (int j = 0; j < 10; j++)
-    {
-        Tree_t tree3 = {};
-
-        if (TreeCtor(&tree3))
-        {
-            TreeDtor(&tree3);
-            return 1;
-        }
-
-        for (size_t i = 0; i < NUMS_SIZE; i++)
-        {
-            numbers[i] = rand();
-        }
-
-        for (size_t i = 0; i < NUMS_SIZE; i++)
-        {
-            if (TreeInsert(&tree3, numbers[i]))
-            {
-                TreeDtor(&tree3);
-                return 1;
-            }
-        }
-
-        int sorted[NUMS_SIZE] = {};
-
-        TreeGetValue(tree3.dummy->right, sorted, NUMS_SIZE);
-        IsSorted(sorted, NUMS_SIZE);
-
-        TreeDtor(&tree3);
-    }
+    RunTreeSortingTests(20, 10);
 
     return EXIT_SUCCESS;
 }
 
-int IsSorted(int* array, size_t size)
-{
-    assert(array);
-
-    DPRINTF("[");
-
-    for (size_t i = 0; i < size - 1; i++)
-    {
-        DPRINTF("%d, ", array[i]);
-
-        if (array[i] > array[i + 1])
-        {
-            DPRINTF("%d, ", array[i + 1]);
-            printf(RED "\nArray is not sorted!\n" RESET_CLR);
-            return 1;
-        }
-    }
-
-    DPRINTF("%d]\n", array[size - 1]);
-
-    printf(GREEN "Array is sorted!\n" RESET_CLR);
-
-    return 0;
-}
+//------------------------------------------------------------------------------------------

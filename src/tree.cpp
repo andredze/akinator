@@ -18,7 +18,6 @@ TreeErr_t TreeGetValue(const TreeNode_t* node, int* array, size_t size)
         }
     }
 
-    DPRINTF("i = %d, data = " SPEC "\n", i, node->data);
     array[i] = node->data;
     i++;
 

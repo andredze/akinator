@@ -22,7 +22,8 @@ endif
 
 SOURCES = src/main.cpp       \
 		  src/tree.cpp	     \
-		  src/treeGraph.cpp
+		  src/treeGraph.cpp  \
+		  src/tests.cpp
 
 EXECUTABLE = run
 
