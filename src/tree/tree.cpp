@@ -2,6 +2,60 @@
 
 //------------------------------------------------------------------------------------------
 
+// TreeErr_t TreeLoopPrint(Tree_t* tree)
+// {
+//     Stack_t stack = {};
+//
+//     if (StackCtor(&stack, STACK_MIN_CAPACITY))
+//     {
+//         return TREE_STACK_ERROR;
+//     }
+//
+//     if (tree->dummy->right)
+//     {
+//         return TREE_SUCCESS;
+//     }
+//
+//     TreeNode_t* node   = tree->dummy->right;
+//     char        letter = '\0';
+//
+//     while (1)
+//     {
+//         if (node->left  != NULL &&
+//             node->right != NULL)
+//         {
+//             if (StackPop(&stack, &letter))
+//             {
+//                 return TREE_STACK_ERROR;
+//             }
+//             printf(" " TREE_SPEC " ", node->data);
+//         }
+//
+//         printf("(");
+//
+//         if (node->left != NULL)
+//         {
+//             if (StackPush(&stack, 'L'))
+//             {
+//                 return TREE_STACK_ERROR;
+//             }
+//             node = node->left;
+//         }
+//         if (node->right != NULL)
+//         {
+//             if (StackPush(&stack, 'R'))
+//             {
+//                 return TREE_STACK_ERROR;
+//             }
+//             node = node->right;
+//         }
+//
+//         printf(")");
+//     }
+// }
+
+//------------------------------------------------------------------------------------------
+
 TreeErr_t TreeSetValuesToArray(Tree_t* tree, int* array)
 {
     assert(tree  != NULL);
@@ -46,7 +100,7 @@ TreeErr_t TreeSetValue(const TreeNode_t* node, int* array, size_t* i)
         }
     }
 
-    DPRINTF("array[%zu] = " SPEC ";\n", *i, node->data);
+    DPRINTF("array[%zu] = " TREE_SPEC ";\n", *i, node->data);
     array[(*i)++] = node->data;
 
     if (node->right != NULL)
@@ -270,6 +324,28 @@ TreeErr_t TreeNodeVerify(TreeNode_t* node)
     if (node == NULL)
     {
         return TREE_NULL_NODE;
+    }
+
+    // kak?
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t TreeVerify(Tree_t* tree)
+{
+    if (tree == NULL)
+    {
+        return TREE_NULL;
+    }
+    if (tree->dummy == NULL)
+    {
+        return TREE_NULL_DUMMY;
+    }
+    if (tree->size > TREE_MAX_SIZE)
+    {
+        return TREE_SIZE_EXCEEDS_MAX;
     }
 
     return TREE_SUCCESS;

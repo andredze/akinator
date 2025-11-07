@@ -17,6 +17,8 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
+// TODO: macro // функция, который(-ая) пишет ошибку из массива tree_str_errs[]
+
 #define PRINTERR(text, ...)                                                     \
         BEGIN                                                                   \
         fprintf(stderr, RED "In %s:%d from %s:\nERROR: " text "\n" RESET_CLR,   \

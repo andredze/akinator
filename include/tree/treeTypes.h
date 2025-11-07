@@ -15,7 +15,7 @@
 
 typedef int TreeElem_t;
 
-#define SPEC "%d"
+#define TREE_SPEC "%d"
 
 const TreeElem_t TREE_POISON = 0xAB0BA;
 
@@ -44,9 +44,12 @@ typedef enum TreeErr
     TREE_NULL,
     TREE_ROOT_NULL,
     TREE_NULL_NODE,
+    TREE_NULL_DUMMY,
     TREE_DUMP_ERROR,
     TREE_CALLOC_ERROR,
     TREE_SIZE_EXCEEDS_MAX,
+    TREE_STACK_ERROR,
+    TREE_SYSTEM_FUNC_ERR
 } TreeErr_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————
@@ -61,9 +64,12 @@ const char* const TREE_STR_ERRORS[] =
     [TREE_NULL]               = "Tree is a nullptr",
     [TREE_ROOT_NULL]          = "Root of the tree is a nullptr",
     [TREE_NULL_NODE]          = "Given node is a nullptr",
+    [TREE_NULL_DUMMY]         = "Tree dummy is a nullptr",
     [TREE_DUMP_ERROR]         = "Error with dumping tree",
     [TREE_CALLOC_ERROR]       = "Memory allocation for tree failed",
     [TREE_SIZE_EXCEEDS_MAX]   = "Tree size exceeded maximum possible value",
+    [TREE_STACK_ERROR]        = "Stack operation failed",
+    [TREE_SYSTEM_FUNC_ERR]    = "System function failed"
 };
 
 //——————————————————————————————————————————————————————————————————————————————————————————

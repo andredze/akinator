@@ -1,7 +1,5 @@
 #include "treeGraph.h"
 
-#ifdef TREE_DEBUG
-
 //------------------------------------------------------------------------------------------
 
 int SetDirectories(char* log_filename, char* log_dir)
@@ -69,8 +67,6 @@ TreeErr_t TreeDump(const Tree_t* tree, const TreeDumpInfo_t* dump_info)
         return TREE_DUMP_ERROR;
     }
 
-    calls_count++;
-
     fprintf(fp, "<pre>\n<h3><font color=blue>%s", dump_info->reason);
 
     if (dump_info->command_arg != NULL)
@@ -120,21 +116,83 @@ TreeErr_t TreeGraphDump(const Tree_t* tree,
                         const char* graph_name,
                         const char* log_dir)
 {
-    assert(tree != NULL); // NOTE: if
+    if (tree == NULL)
+    {
+        PRINTERR("TREE_NULL");
+        return    TREE_NULL;
+    }
 
-    char dot_filename[MAX_FILENAME_LEN] = {};
+    char dot_file_path[MAX_FILENAME_LEN] = {};
+    char svg_file_path[MAX_FILENAME_LEN] = {};
 
-    sprintf(dot_filename, "%s/dot/%s.dot", log_dir, graph_name);
+    SetGraphFilepaths(dot_file_path, svg_file_path, log_dir, graph_name);
 
-    FILE* log = fopen(dot_filename, "w");
+    FILE* dot_file = fopen(dot_file_path, "w");
 
-    if (log == NULL)
+    if (dot_file == NULL)
     {
         PRINTERR("Failed opening logfile");
         return TREE_DUMP_ERROR;
     }
 
-    fprintf(log, "digraph Tree\n{\n\t"
+    DumpGraphTitle(dot_file);
+
+    if (MakeTreeDefaultNode(tree->dummy, "#3E3A22", "#ecede8", "#3E3A22", "record", dot_file))
+    {
+        return TREE_DUMP_ERROR;
+    }
+    if (MakeTreeEdges(tree->dummy, dot_file))
+    {
+        return TREE_DUMP_ERROR;
+    }
+
+    if (tree->dummy->right != NULL)
+    {
+        TreeErr_t error = TREE_SUCCESS;
+
+        if ((error = TreeNodeDump(tree->dummy->right, dot_file)))
+        {
+            return error;
+        }
+    }
+
+    fprintf(dot_file, "}\n");
+
+    fclose(dot_file);
+
+    TreeErr_t error = TREE_SUCCESS;
+    if ((error = TreeConvertGraphFile(dot_file_path, svg_file_path)))
+    {
+        return error;
+    }
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+void SetGraphFilepaths(char*       dot_file_path,
+                       char*       svg_file_path,
+                       const char* log_dir,
+                       const char* graph_name)
+{
+    assert(dot_file_path != NULL);
+    assert(svg_file_path != NULL);
+    assert(graph_name    != NULL);
+    assert(log_dir       != NULL);
+
+    snprintf(dot_file_path, MAX_FILENAME_LEN, "%s/dot/%s.dot", log_dir, graph_name);
+    snprintf(svg_file_path, MAX_FILENAME_LEN, "%s/svg/%s.svg", log_dir, graph_name);
+}
+
+//------------------------------------------------------------------------------------------
+
+void DumpGraphTitle(FILE* dot_file)
+{
+    assert(dot_file != NULL);
+
+    fprintf(dot_file,
+    "digraph Tree\n{\n\t"
     R"(graph [splines=ortho];
     ranksep=0.75;
     nodesep=0.5;
@@ -146,37 +204,31 @@ TreeErr_t TreeGraphDump(const Tree_t* tree,
         fillcolor = "#E3DFC9",
         fontcolor = "#3E3A22"
     ];)""\n");
+}
 
-    if (MakeTreeDefaultNode(tree->dummy, "#3E3A22", "#ecede8", "#3E3A22", "record", log))
+//------------------------------------------------------------------------------------------
+
+TreeErr_t TreeConvertGraphFile(const char* dot_file_path,
+                               const char* svg_file_path)
+{
+    assert(dot_file_path != NULL);
+    assert(svg_file_path != NULL);
+
+    char command[MAX_COMMAND_LEN] = {};
+
+    snprintf(command, sizeof(command), "dot %s -T svg -o %s", dot_file_path, svg_file_path);
+
+    int result = system(command);
+
+    if (result == 0)
     {
-        return TREE_DUMP_ERROR;
+        DPRINTF("Generated graph dump: %s\n", svg_file_path);
     }
-    if (MakeTreeEdges      (tree->dummy, log))
+    else
     {
-        return TREE_DUMP_ERROR;
+        PRINTERR("TREE_SYSTEM_FUNC_ERR");
+        return    TREE_SYSTEM_FUNC_ERR;
     }
-
-    if (tree->dummy->right != NULL)
-    {
-        TreeErr_t error = TREE_SUCCESS;
-
-        if ((error = TreeNodeDump(tree->dummy->right, log)))
-        {
-            return error;
-        }
-    }
-
-    printf("\n");
-
-    fprintf(log, "}\n");
-
-    fclose(log);
-
-    // new func
-    char command[MAX_COMMAND_LEN] = "";
-    snprintf(command, 200, "dot %s -T svg -o %s/svg/%s.svg", dot_filename, log_dir, graph_name);
-
-    system(command);
 
     return TREE_SUCCESS;
 }
@@ -189,8 +241,6 @@ TreeErr_t TreeNodeDump(const TreeNode_t* node, FILE* fp)
 
     TreeErr_t error = TREE_SUCCESS;
 
-    printf("(");
-
     if (node->left != NULL)
     {
         if ((error = TreeNodeDump(node->left, fp)))
@@ -198,8 +248,6 @@ TreeErr_t TreeNodeDump(const TreeNode_t* node, FILE* fp)
             return error;
         }
     }
-
-    printf(" "SPEC " ", node->data);
 
     if ((error = TreeSingleNodeDump(node, fp)))
     {
@@ -209,6 +257,36 @@ TreeErr_t TreeNodeDump(const TreeNode_t* node, FILE* fp)
     if (node->right != NULL)
     {
         if ((error = TreeNodeDump(node->right, fp)))
+        {
+            return error;
+        }
+    }
+
+    return TREE_SUCCESS;
+}
+//------------------------------------------------------------------------------------------
+
+TreeErr_t TreeNodePrint(const TreeNode_t* node)
+{
+    assert(node != NULL);
+
+    TreeErr_t error = TREE_SUCCESS;
+
+    printf("(");
+
+    if (node->left != NULL)
+    {
+        if ((error = TreeNodePrint(node->left)))
+        {
+            return error;
+        }
+    }
+
+    printf(" " TREE_SPEC " ", node->data);
+
+    if (node->right != NULL)
+    {
+        if ((error = TreeNodePrint(node->right)))
         {
             return error;
         }
@@ -294,7 +372,7 @@ int MakeTreeDefaultNode(const TreeNode_t* node,
     }
     else
     {
-        current_pos += sprintf(current_pos + label, SPEC, node->data);
+        current_pos += sprintf(current_pos + label, TREE_SPEC, node->data);
     }
 
     sprintf(current_pos + label, " | { left = %p | right = %p }}",
@@ -404,5 +482,3 @@ int PrintArg(const char* arg_name,
 }
 
 //------------------------------------------------------------------------------------------
-
-#endif

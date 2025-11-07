@@ -1,6 +1,6 @@
 CXX = g++
 
-CXXFLAGS = -I include -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ 				     \
+CXXFLAGS = -I include -I include/tree -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ 	 \
 		   -Waggressive-loop-optimizations -Wc++14-compat -Wmissing-declarations 		   		 \
 		   -Wcast-align -Wcast-qual -Wchar-subscripts -Wconditionally-supported  		   		 \
 		   -Wconversion -Wctor-dtor-privacy -Wempty-body -Wfloat-equal -Wformat-nonliteral 		 \
@@ -16,14 +16,14 @@ CXXFLAGS = -I include -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ 			
 		   -Wlarger-than=8192 -Wstack-usage=8192 -pie -fPIE -Werror=vla 					 	 \
 		   -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr
 
+SOURCES = src/main.cpp       	 \
+		  src/tree/tree.cpp	     \
+		  src/tests.cpp
+
 ifdef DEBUG
 CXXFLAGS += -D TREE_DEBUG
+SOURCES  += src/tree/treeGraph.cpp
 endif
-
-SOURCES = src/main.cpp       \
-		  src/tree.cpp	     \
-		  src/treeGraph.cpp  \
-		  src/tests.cpp
 
 EXECUTABLE = run
 
