@@ -46,7 +46,7 @@
 
 TreeErr_t TreeLoopPrint        (Tree_t*     tree);
 TreeErr_t TreeVerify           (Tree_t*     tree);
-TreeErr_t TreeSetValuesToArray (Tree_t*     tree, int* array);
+TreeErr_t TreeSetValuesToArray (Tree_t*     tree, TreeElem_t* array);
 TreeErr_t TreeCtor             (Tree_t*     tree);
 TreeErr_t TreeNodeCtor         (Tree_t*     tree, TreeElem_t data, TreeNode_t** new_node);
 TreeErr_t TreeDtor             (Tree_t*     tree);
@@ -59,7 +59,7 @@ TreeErr_t TreeLeftSubtreeDtor  (TreeNode_t*  node    );
 TreeErr_t TreeRightSubtreeDtor (TreeNode_t*  node    );
 TreeErr_t TreeSubtreeDtor      (TreeNode_t** node_ptr);
 
-TreeErr_t TreeSetValue         (const TreeNode_t* node, int* array, size_t* i);
+TreeErr_t TreeSetValue(const TreeNode_t* node, TreeElem_t* array, size_t* i);
 
 TreeErr_t TreeCheck(Tree_t*     tree,
                     const char* func,

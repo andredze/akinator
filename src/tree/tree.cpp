@@ -174,7 +174,7 @@ TreeErr_t TreeCheck(Tree_t*     tree,
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeSetValuesToArray(Tree_t* tree, int* array)
+TreeErr_t TreeSetValuesToArray(Tree_t* tree, TreeElem_t* array)
 {
     assert(tree  != NULL);
     assert(array != NULL);
@@ -198,7 +198,7 @@ TreeErr_t TreeSetValuesToArray(Tree_t* tree, int* array)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeSetValue(const TreeNode_t* node, int* array, size_t* i)
+TreeErr_t TreeSetValue(const TreeNode_t* node, TreeElem_t* array, size_t* i)
 {
     assert(array != NULL);
     assert(i     != NULL);

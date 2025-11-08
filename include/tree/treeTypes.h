@@ -13,11 +13,11 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-typedef int TreeElem_t;
+typedef char* TreeElem_t;
 
-#define TREE_SPEC "%d"
+#define TREE_SPEC "%s"
 
-const TreeElem_t TREE_POISON = 0xAB0BA;
+const TreeElem_t TREE_POISON = NULL;
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
