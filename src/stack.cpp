@@ -516,6 +516,8 @@ size_t StackHash(Stack_t* stack)
 }
 #endif /* HASH */
 
+#ifdef STACK_DEBUG
+
 StackErr_t StackPrint(Stack_t* stack)
 {
     STACK_OK(stack, reason_start);
@@ -569,3 +571,4 @@ StackErr_t StackPrint(Stack_t* stack)
 
     return STACK_SUCCESS;
 }
+#endif

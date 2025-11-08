@@ -2,57 +2,118 @@
 
 //------------------------------------------------------------------------------------------
 
-// TreeErr_t TreeLoopPrint(Tree_t* tree)
-// {
-//     Stack_t stack = {};
-//
-//     if (StackCtor(&stack, STACK_MIN_CAPACITY))
-//     {
-//         return TREE_STACK_ERROR;
-//     }
-//
-//     if (tree->dummy->right)
-//     {
-//         return TREE_SUCCESS;
-//     }
-//
-//     TreeNode_t* node   = tree->dummy->right;
-//     char        letter = '\0';
-//
-//     while (1)
-//     {
-//         if (node->left  != NULL &&
-//             node->right != NULL)
-//         {
-//             if (StackPop(&stack, &letter))
-//             {
-//                 return TREE_STACK_ERROR;
-//             }
-//             printf(" " TREE_SPEC " ", node->data);
-//         }
-//
-//         printf("(");
-//
-//         if (node->left != NULL)
-//         {
-//             if (StackPush(&stack, 'L'))
-//             {
-//                 return TREE_STACK_ERROR;
-//             }
-//             node = node->left;
-//         }
-//         if (node->right != NULL)
-//         {
-//             if (StackPush(&stack, 'R'))
-//             {
-//                 return TREE_STACK_ERROR;
-//             }
-//             node = node->right;
-//         }
-//
-//         printf(")");
-//     }
-// }
+TreeErr_t TreeLoopPrint(Tree_t* tree)
+{
+    if (tree->dummy->right == NULL)
+    {
+        return TREE_SUCCESS;
+    }
+
+    Stack_t stack = {};
+
+    if (StackCtor(&stack, STACK_MIN_CAPACITY))
+    {
+        return TREE_STACK_ERROR;
+    }
+
+    size_t i = 0;
+    TreeCallsCtx_t node_ctx = {tree->dummy, '\0'};
+
+    while (node_ctx.node != tree->dummy || i == 0)
+    {
+        if (i > 100)
+        {
+            PRINTERR("Iterations exceeded max (i = %zu, size = %zu)", i, tree->size);
+            StackDtor(&stack);
+            return TREE_LOOP;
+        }
+
+        DPRINTF("node = %p, data = " TREE_SPEC ", letter = %c;\n", node_ctx.node, node_ctx.node->data, node_ctx.letter);
+
+        if (node_ctx.letter == '\0')
+        {
+            if (node_ctx.node->left != NULL)
+            {
+                StackPush(&stack, {node_ctx.node,  'L'});
+                node_ctx.node = node_ctx.node->left;
+                continue;
+            }
+
+            if (node_ctx.node != tree->dummy)
+            {
+                printf(" " TREE_SPEC " ", node_ctx.node->data);
+            }
+
+            if (node_ctx.node->right != NULL)
+            {
+                StackPush(&stack, {node_ctx.node, 'R'});
+                node_ctx.node = node_ctx.node->right;
+            }
+            else
+            {
+                DPRINTF("bef stackpop: node = %p, data = " TREE_SPEC ", letter = %c;\n", node_ctx.node, node_ctx.node->data, node_ctx.letter);
+                StackPop(&stack, &node_ctx);
+                DPRINTF("aft stackpop: node = %p, data = " TREE_SPEC ", letter = %c;\n", node_ctx.node, node_ctx.node->data, node_ctx.letter);
+            }
+        }
+        else if (node_ctx.letter == 'L')
+        {
+            printf(" " TREE_SPEC " ", node_ctx.node->data);
+
+            if (node_ctx.node->right != NULL)
+            {
+                StackPush(&stack, {node_ctx.node, 'R'});
+                node_ctx.node = node_ctx.node->right;
+                node_ctx.letter = '\0';
+            }
+            else
+            {
+                DPRINTF("bef stackpop: node = %p, data = " TREE_SPEC ", letter = %c;\n", node_ctx.node, node_ctx.node->data, node_ctx.letter);
+                StackPop(&stack, &node_ctx);
+                DPRINTF("aft stackpop: node = %p, data = " TREE_SPEC ", letter = %c;\n", node_ctx.node, node_ctx.node->data, node_ctx.letter);
+            }
+        }
+        else
+        {
+            DPRINTF("bef stackpop: node = %p, data = " TREE_SPEC ", letter = %c;\n", node_ctx.node, node_ctx.node->data, node_ctx.letter);
+            StackPop(&stack, &node_ctx);
+            DPRINTF("aft stackpop: node = %p, data = " TREE_SPEC ", letter = %c;\n", node_ctx.node, node_ctx.node->data, node_ctx.letter);
+        }
+        i++;
+    }
+
+    StackDtor(&stack);
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t TreeCheck(Tree_t*     tree,
+                    const char* func,
+                    const char* file,
+                    int         line,
+                    void*       arg)
+{
+    assert(func    != NULL);
+    assert(file    != NULL);
+
+    TreeErr_t verify_status = TREE_SUCCESS;
+
+    if ((verify_status = TreeVerify(tree)))
+    {
+        PRINTERR("%s (TreeVerify not passed! Check \"tree.html\")", TREE_STR_ERRORS[verify_status]);
+
+        TreeDumpInfo_t dump_info = {verify_status, "error_dump", func, file, line, arg};
+
+        if (TreeDump(tree, &dump_info))
+        {
+            return TREE_DUMP_ERROR;
+        }
+    }
+
+    return verify_status;
+}
 
 //------------------------------------------------------------------------------------------
 
@@ -168,7 +229,7 @@ TreeErr_t TreeNodeCtor(Tree_t* tree, TreeElem_t data, TreeNode_t** new_node)
 
 TreeErr_t TreeInsert(Tree_t* tree, TreeElem_t data)
 {
-    assert(tree != NULL);
+    // DEBUG_TREE_CHECK();
 
     TreeNode_t* node     = tree->dummy;
     TreeNode_t* new_node = NULL;
@@ -319,14 +380,40 @@ TreeErr_t TreeSingleNodeDtor(TreeNode_t* node)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeNodeVerify(TreeNode_t* node)
+TreeErr_t TreeNodeVerify(Tree_t* tree, TreeNode_t* node, size_t* calls_count)
 {
+    assert(calls_count != NULL);
+    assert(tree        != NULL);
+
+    if (*calls_count > tree->size)
+    {
+        return TREE_LOOP;
+    }
+
     if (node == NULL)
     {
         return TREE_NULL_NODE;
     }
 
-    // kak?
+    (*calls_count)++;
+
+    TreeErr_t error = TREE_SUCCESS;
+
+    if (node->left != NULL)
+    {
+        if ((error = TreeNodeVerify(tree, node->left, calls_count)))
+        {
+            return error;
+        }
+    }
+
+    if (node->right != NULL)
+    {
+        if ((error = TreeNodeVerify(tree, node->right, calls_count)))
+        {
+            return error;
+        }
+    }
 
     return TREE_SUCCESS;
 }
@@ -346,6 +433,14 @@ TreeErr_t TreeVerify(Tree_t* tree)
     if (tree->size > TREE_MAX_SIZE)
     {
         return TREE_SIZE_EXCEEDS_MAX;
+    }
+
+    size_t calls_count = 0;
+    TreeErr_t error = TREE_SUCCESS;
+
+    if ((error = TreeNodeVerify(tree, tree->dummy, &calls_count)))
+    {
+        return error;
     }
 
     return TREE_SUCCESS;

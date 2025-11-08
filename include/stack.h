@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "treeTypes.h"
 
 #ifndef STACK_DEBUG
     #define NDEBUG
@@ -95,23 +96,23 @@
 
 //==========================================================================================
 
-typedef struct NodeCall
+typedef struct TreeCallsCtx
 {
     TreeNode_t* node;
     char        letter;
-} NodeCall_t;
+} TreeCallsCtx_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
 const size_t STACK_SIZE_LIMIT   = SIZE_MAX / 32 * 30;
 const size_t STACK_MIN_CAPACITY = 32;
 
-const int        POISON_INT = 0xDEBABA;
-const NodeCall_t POISON_PTR = {NULL, '\0'};
+const int            POISON_INT = 0xDEBABA;
+const TreeCallsCtx_t POISON_PTR = {NULL, '\0'};
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-typedef NodeCall_t item_t;
+typedef TreeCallsCtx_t item_t;
 
 const item_t POISON = POISON_PTR;
 

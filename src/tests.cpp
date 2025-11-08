@@ -35,6 +35,9 @@ int RunTreeExample()
         if (TreeInsert(&tree2, 30))
             break;
 
+        if (TreeLoopPrint(&tree2))
+            break;
+
     }
     while (0);
 
