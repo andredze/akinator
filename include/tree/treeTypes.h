@@ -23,8 +23,8 @@ const TreeElem_t TREE_POISON = NULL;
 
 typedef struct TreeNode
 {
-    TreeElem_t       data;
-    struct TreeNode* left;
+    TreeElem_t       data ;
+    struct TreeNode* left ;
     struct TreeNode* right;
 } TreeNode_t;
 
@@ -40,16 +40,15 @@ typedef struct Tree
 
 typedef enum TreeErr
 {
-    TREE_SUCCESS,
+    TREE_SUCCESS = 0,
     TREE_NULL,
-    TREE_ROOT_NULL,
     TREE_NULL_NODE,
     TREE_NULL_DUMMY,
-    TREE_LOOP,
-    TREE_DUMP_ERROR,
-    TREE_CALLOC_ERROR,
     TREE_SIZE_EXCEEDS_MAX,
-    TREE_STACK_ERROR,
+    TREE_LOOP,
+
+    TREE_CALLOC_ERROR,
+    TREE_DUMP_ERROR,
     TREE_SYSTEM_FUNC_ERR
 } TreeErr_t;
 
@@ -63,14 +62,12 @@ const char* const TREE_STR_ERRORS[] =
 {
     [TREE_SUCCESS]            = "Tree is ok",
     [TREE_NULL]               = "Tree is a nullptr",
-    [TREE_ROOT_NULL]          = "Root of the tree is a nullptr",
     [TREE_NULL_NODE]          = "Given node is a nullptr",
     [TREE_NULL_DUMMY]         = "Tree dummy is a nullptr",
-    [TREE_LOOP]               = "Tree is looped",
-    [TREE_DUMP_ERROR]         = "Error with dumping tree",
-    [TREE_CALLOC_ERROR]       = "Memory allocation for tree failed",
     [TREE_SIZE_EXCEEDS_MAX]   = "Tree size exceeded maximum possible value",
-    [TREE_STACK_ERROR]        = "Stack operation failed",
+    [TREE_LOOP]               = "Tree is looped",
+    [TREE_CALLOC_ERROR]       = "Memory allocation for tree failed",
+    [TREE_DUMP_ERROR]         = "Error with dumping tree",
     [TREE_SYSTEM_FUNC_ERR]    = "System function failed"
 };
 
@@ -79,11 +76,9 @@ const char* const TREE_STR_ERRORS[] =
 typedef struct TreeDumpInfo
 {
     TreeErr_t   error;
-    const char* reason;
     const char* func;
     const char* file;
     int         line;
-    void*       command_arg;
 } TreeDumpInfo_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————

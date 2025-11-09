@@ -6,10 +6,17 @@
 #include "treeTypes.h"
 #include <time.h>
 #include <sys/stat.h>
+#include <stdarg.h>
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-TreeErr_t TreeDump            (const Tree_t*     tree, const TreeDumpInfo_t* dump_info);
+TreeErr_t TreeDump(const Tree_t*         tree,
+                   const TreeDumpInfo_t* dump_info,
+                   const char* fmt, ...);
+
+TreeErr_t vTreeDump(const Tree_t*         tree,
+                    const TreeDumpInfo_t* dump_info,
+                    const char* fmt, va_list args);
 
 TreeErr_t TreeGraphDump       (const Tree_t* tree,
                                const char* image_name,

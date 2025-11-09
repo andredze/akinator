@@ -1,4 +1,4 @@
-#include "treeGraph.h"
+#include "treeDebug.h"
 
 //------------------------------------------------------------------------------------------
 
@@ -40,9 +40,28 @@ int SetDirectories(char* log_filename, char* log_dir)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeDump(const Tree_t* tree, const TreeDumpInfo_t* dump_info)
+TreeErr_t TreeDump(const Tree_t*         tree,
+                   const TreeDumpInfo_t* dump_info,
+                   const char* fmt, ...)
 {
-    assert(tree != NULL);
+    va_list args = {};
+    va_start(args, fmt);
+
+    TreeErr_t result = vTreeDump(tree, dump_info, fmt, args);
+
+    va_end(args);
+
+    return result;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t vTreeDump(const Tree_t*         tree,
+                    const TreeDumpInfo_t* dump_info,
+                    const char* fmt, va_list args)
+{
+    assert(tree      != NULL);
+    assert(dump_info != NULL);
 
     static int calls_count = 0;
     calls_count++;
@@ -67,12 +86,9 @@ TreeErr_t TreeDump(const Tree_t* tree, const TreeDumpInfo_t* dump_info)
         return TREE_DUMP_ERROR;
     }
 
-    fprintf(fp, "<pre>\n<h3><font color=blue>%s", dump_info->reason);
+    fprintf(fp, "<pre>\n<h3><font color=blue>");
 
-    if (dump_info->command_arg != NULL)
-    {
-        fprintf(fp, "%p", dump_info->command_arg);
-    }
+    vfprintf(fp, fmt, args);
 
     fprintf(fp, "</font></h3>");
 

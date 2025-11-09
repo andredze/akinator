@@ -1,159 +1,18 @@
-#include "tree.h"
+#include "treeCommands.h"
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeLoopPrint(Tree_t* tree)
-{
-    if (tree->dummy->right == NULL)
-    {
-        return TREE_SUCCESS;
-    }
-
-    Stack_t stack = {};
-
-    if (StackCtor(&stack, STACK_MIN_CAPACITY))
-    {
-        return TREE_STACK_ERROR;
-    }
-
-    size_t i = 0;
-    TreeCallsCtx_t node_ctx = {tree->dummy->right, '\0'};
-
-    if (StackPush(&stack, {tree->dummy, 'R'}))
-    {
-        return TREE_STACK_ERROR;
-    }
-
-    while (node_ctx.node != tree->dummy)
-    {
-        if (i > tree->size * tree->size)
-        {
-            PRINTERR("Iterations exceeded max (i = %zu, size = %zu)", i, tree->size);
-            StackDtor(&stack);
-            return TREE_LOOP;
-        }
-
-        DPRINTF("node = %p, data = " TREE_SPEC ", letter = %c;\n",
-                node_ctx.node,
-                node_ctx.node->data,
-                node_ctx.letter);
-
-        if (node_ctx.letter == '\0')
-        {
-            TreeLoopTraversalProcessZero(&node_ctx, &stack);
-        }
-        else if (node_ctx.letter == 'L')
-        {
-            TreeLoopTraversalProcessLeft(&node_ctx, &stack);
-        }
-        else
-        {
-            TreeLoopTraversalProcessRight(&node_ctx, &stack);
-        }
-
-        i++;
-    }
-
-    StackDtor(&stack);
-
-    return TREE_SUCCESS;
-}
-
-//------------------------------------------------------------------------------------------
-
-// хранить в стеке указатели а не структуры?
-
-TreeErr_t TreeLoopTraversalProcessZero(TreeCallsCtx_t* node_ctx, Stack_t* stack)
-{
-    assert(node_ctx != NULL);
-    assert(stack    != NULL);
-
-    if (node_ctx->node->left != NULL)
-    {
-        if (StackPush(stack, {node_ctx->node, 'L'}))
-        {
-            return TREE_STACK_ERROR;
-        }
-        node_ctx->node = node_ctx->node->left;
-
-        return TREE_SUCCESS;
-    }
-
-    printf(" " TREE_SPEC " ", node_ctx->node->data);
-
-    if (node_ctx->node->right != NULL)
-    {
-        if (StackPush(stack, {node_ctx->node, 'R'}))
-        {
-            return TREE_STACK_ERROR;
-        }
-        node_ctx->node = node_ctx->node->right;
-    }
-    else
-    {
-        if (StackPop(stack, node_ctx))
-        {
-            return TREE_STACK_ERROR;
-        }
-    }
-
-    return TREE_SUCCESS;
-}
-
-//------------------------------------------------------------------------------------------
-
-TreeErr_t TreeLoopTraversalProcessLeft(TreeCallsCtx_t* node_ctx, Stack_t* stack)
-{
-    assert(node_ctx != NULL);
-    assert(stack    != NULL);
-
-    printf(" " TREE_SPEC " ", node_ctx->node->data);
-
-    if (node_ctx->node->right != NULL)
-    {
-        if (StackPush(stack, {node_ctx->node, 'R'}))
-        {
-            return TREE_STACK_ERROR;
-        }
-        node_ctx->node   = node_ctx->node->right;
-        node_ctx->letter = '\0';
-    }
-    else
-    {
-        if (StackPop(stack, node_ctx))
-        {
-            return TREE_STACK_ERROR;
-        }
-    }
-
-    return TREE_SUCCESS;
-}
-
-//------------------------------------------------------------------------------------------
-
-TreeErr_t TreeLoopTraversalProcessRight(TreeCallsCtx_t* node_ctx, Stack_t* stack)
-{
-    assert(node_ctx != NULL);
-    assert(stack    != NULL);
-
-    if (StackPop(stack, node_ctx))
-    {
-        return TREE_STACK_ERROR;
-    }
-
-    return TREE_SUCCESS;
-}
-
-//------------------------------------------------------------------------------------------
+#ifdef TREE_DEBUG
 
 TreeErr_t TreeCheck(Tree_t*     tree,
                     const char* func,
                     const char* file,
                     int         line,
-                    void*       arg)
+                    const char* fmt, ...)
 {
-    assert(func    != NULL);
-    assert(file    != NULL);
+    assert(func != NULL);
+    assert(file != NULL);
+    assert(fmt  != NULL);
 
     TreeErr_t verify_status = TREE_SUCCESS;
 
@@ -161,76 +20,23 @@ TreeErr_t TreeCheck(Tree_t*     tree,
     {
         PRINTERR("%s (TreeVerify not passed! Check \"tree.html\")", TREE_STR_ERRORS[verify_status]);
 
-        TreeDumpInfo_t dump_info = {verify_status, "error_dump", func, file, line, arg};
+        TreeDumpInfo_t dump_info = {verify_status, func, file, line};
 
-        if (TreeDump(tree, &dump_info))
+        va_list args = {};
+        va_start(args, fmt);
+
+        if (vTreeDump(tree, &dump_info, fmt, args))
         {
             return TREE_DUMP_ERROR;
         }
+
+        va_end(args);
     }
 
     return verify_status;
 }
 
-//------------------------------------------------------------------------------------------
-
-TreeErr_t TreeSetValuesToArray(Tree_t* tree, TreeElem_t* array)
-{
-    assert(tree  != NULL);
-    assert(array != NULL);
-
-    size_t i = 0;
-
-    TreeErr_t error = TREE_SUCCESS;
-
-    if (tree->dummy->right == NULL)
-    {
-        return TREE_SUCCESS;
-    }
-
-    if ((error = TreeSetValue(tree->dummy->right, array, &i)))
-    {
-        return error;
-    }
-
-    return TREE_SUCCESS;
-}
-
-//------------------------------------------------------------------------------------------
-
-TreeErr_t TreeSetValue(const TreeNode_t* node, TreeElem_t* array, size_t* i)
-{
-    assert(array != NULL);
-    assert(i     != NULL);
-
-    if (node == NULL)
-    {
-        return TREE_NULL_NODE;
-    }
-
-    TreeErr_t error = TREE_SUCCESS;
-
-    if (node->left != NULL)
-    {
-        if ((error = TreeSetValue(node->left, array, i)))
-        {
-            return error;
-        }
-    }
-
-    DPRINTF("array[%zu] = " TREE_SPEC ";\n", *i, node->data);
-    array[(*i)++] = node->data;
-
-    if (node->right != NULL)
-    {
-        if ((error = TreeSetValue(node->right, array, i)))
-        {
-            return error;
-        }
-    }
-
-    return TREE_SUCCESS;
-}
+#endif /* TREE_DEBUG */
 
 //------------------------------------------------------------------------------------------
 
@@ -251,9 +57,9 @@ TreeErr_t TreeCtor(Tree_t* tree)
 
     tree->size  = 0;
 
-    TREE_CALL_DUMP(tree, "DUMP AFTER CTOR ", 0);
+    TREE_CALL_DUMP(tree, "DUMP AFTER CTOR");
 
-    DPRINTF("CTOR END\n");
+    DPRINTF("> TreeCtor   END\n");
 
     return TREE_SUCCESS;
 }
@@ -286,12 +92,12 @@ TreeErr_t TreeNodeCtor(Tree_t* tree, TreeElem_t data, TreeNode_t** new_node)
 
 TreeErr_t TreeInsert(Tree_t* tree, TreeElem_t data)
 {
-    // DEBUG_TREE_CHECK();
+    DEBUG_TREE_CHECK(tree, "ERROR DUMP TREE BEFORE INSERT data = " TREE_SPEC, data);
 
     TreeNode_t* node     = tree->dummy;
     TreeNode_t* new_node = NULL;
 
-    TreeErr_t   error = TREE_SUCCESS;
+    TreeErr_t   error    = TREE_SUCCESS;
 
     if ((error = TreeNodeCtor(tree, data, &new_node)))
     {
@@ -320,7 +126,9 @@ TreeErr_t TreeInsert(Tree_t* tree, TreeElem_t data)
         }
     }
 
-    TREE_CALL_DUMP(tree, "DUMP AFTER INSERT DATA TO PTR = ", new_node);
+    DEBUG_TREE_CHECK(tree, "ERROR DUMP TREE AFTER INSERT data = " TREE_SPEC " to %p", data, new_node);
+
+    TREE_CALL_DUMP(tree, "DUMP TREE AFTER INSERT data = " TREE_SPEC " to %p", data, new_node);
 
     return TREE_SUCCESS;
 }
