@@ -370,7 +370,7 @@ TreeErr_t AkinatorWriteData(const Tree_t* tree)
 
     TreeErr_t err = TREE_SUCCESS;
 
-    if ((err = WriteNodeToFile(tree->dummy->right, fp)))
+    if ((err = WriteNode(tree->dummy->right, fp)))
     {
         return err;
     }
@@ -399,24 +399,24 @@ void MakeDataFilePath(char* data_file_path)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t WriteNodeToFile(const TreeNode_t* node, FILE* fp)
+TreeErr_t WriteNode(const TreeNode_t* node, FILE* fp)
 {
     assert(node != NULL);
 
     TreeErr_t err = TREE_SUCCESS;
 
-    fprintf(fp, "( %s ", node->data);
+    fprintf(fp, "( \"%s\" ", node->data);
 
     if (node->left != NULL)
     {
-        if ((err = WriteNodeToFile(node->left, fp)))
+        if ((err = WriteNode(node->left, fp)))
         {
             return err;
         }
     }
     if (node->right != NULL)
     {
-        if ((err = WriteNodeToFile(node->right, fp)))
+        if ((err = WriteNode(node->right, fp)))
         {
             return err;
         }
@@ -425,6 +425,57 @@ TreeErr_t WriteNodeToFile(const TreeNode_t* node, FILE* fp)
     fprintf(fp, ")");
 
     return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t AkinatorReadData(Tree_t* tree, const char* data_file_path)
+{
+    DEBUG_TREE_CHECK(tree, "ERROR BEFORE AKINATOR READ DATA");
+
+    assert(data_file_path != NULL);
+
+    FILE* fp = fopen(data_file_path, "r");
+
+    if (fp == NULL)
+    {
+        PRINTERR("Error with opening file: %s", data_file_path);
+        return TREE_FILE_ERR;
+    }
+
+    TreeErr_t err = TREE_SUCCESS;
+
+    if ((err = ReadNode(tree->dummy, fp)))
+    {
+        return err;
+    }
+
+    DEBUG_TREE_CHECK(tree, "ERROR AFTER AKINATOR READ DATA");
+    TREE_CALL_DUMP  (tree, "DUMP AFTER AKINATOR READ DATA");
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t ReadNode(TreeNode_t* node, FILE* fp)
+{
+    char buffer[MAX_INPUT_LEN] = {};
+    int  data_len = 0;
+
+    if (fscanf(fp, "(", buffer, &data_len) != 1)
+    {
+        PRINTERR("Error with reading data");
+        return TREE_FILE_ERR;
+    }
+
+    if (fscanf(fp, "\"%[^\"]%n", buffer, &data_len) != 1)
+    {
+        PRINTERR("Error with reading data");
+        return TREE_FILE_ERR;
+    }
+
+
 }
 
 //------------------------------------------------------------------------------------------

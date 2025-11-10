@@ -20,16 +20,16 @@ TreeErr_t AkinatorGetFeature(char** feature_data, const char* guess_word, const 
 
 TreeErr_t AkinatorWriteData (const Tree_t* tree);
 
-TreeErr_t WriteNodeToFile   (const TreeNode_t* node, FILE* fp);
+TreeErr_t WriteNode         (const TreeNode_t* node, FILE* fp);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-void MakeDataFilePath(char* data_file_path);
-void CleanBuffer();
-int GetUserAnswer();
-int GetShortAnswer(char* str, int size);
-char* StringToLower(char* dest, const char* src);
-char ToLower(char letter);
+int   GetUserAnswer    (    void    );
+int   GetShortAnswer   (char* str,  int size);
+char* StringToLower    (char* dest, const char* src);
+char  ToLower          (char  letter);
+void  CleanBuffer      (    void    );
+void  MakeDataFilePath (char* data_file_path);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
