@@ -59,12 +59,14 @@ int main()
         if (TreeCtor(&tree))
             break;
 
+        if (AkinatorReadData(&tree, "data/10112025_225628.txt"))
+            break;
+
         if (RunAkinator(&tree))
             break;
 
         if (AkinatorWriteData(&tree))
             break;
-
     } while (0);
 
     TreeDtor(&tree);

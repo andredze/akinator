@@ -405,7 +405,7 @@ TreeErr_t WriteNode(const TreeNode_t* node, FILE* fp)
 
     TreeErr_t err = TREE_SUCCESS;
 
-    fprintf(fp, "( \"%s\" ", node->data);
+    fprintf(fp, "(\"%s\"", node->data);
 
     if (node->left != NULL)
     {
@@ -414,12 +414,21 @@ TreeErr_t WriteNode(const TreeNode_t* node, FILE* fp)
             return err;
         }
     }
+    else
+    {
+        fprintf(fp, "nil");
+    }
+
     if (node->right != NULL)
     {
         if ((err = WriteNode(node->right, fp)))
         {
             return err;
         }
+    }
+    else
+    {
+        fprintf(fp, "nil");
     }
 
     fprintf(fp, ")");
@@ -435,6 +444,8 @@ TreeErr_t AkinatorReadData(Tree_t* tree, const char* data_file_path)
 
     assert(data_file_path != NULL);
 
+    DPRINTF("Reading file %s\n", data_file_path);
+
     FILE* fp = fopen(data_file_path, "r");
 
     if (fp == NULL)
@@ -443,12 +454,22 @@ TreeErr_t AkinatorReadData(Tree_t* tree, const char* data_file_path)
         return TREE_FILE_ERR;
     }
 
-    TreeErr_t err = TREE_SUCCESS;
+    char* buffer = NULL;
 
-    if ((err = ReadNode(tree->dummy, fp)))
+    if (ReadFile(fp, &buffer, data_file_path))
+    {
+        return TREE_FILE_ERR;
+    }
+
+    TreeErr_t err = TREE_SUCCESS;
+    int i = 0;
+
+    if ((err = ReadNode(tree, &tree->dummy->right, buffer, &i)))
     {
         return err;
     }
+
+    free(buffer);
 
     DEBUG_TREE_CHECK(tree, "ERROR AFTER AKINATOR READ DATA");
     TREE_CALL_DUMP  (tree, "DUMP AFTER AKINATOR READ DATA");
@@ -458,24 +479,176 @@ TreeErr_t AkinatorReadData(Tree_t* tree, const char* data_file_path)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t ReadNode(TreeNode_t* node, FILE* fp)
+TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, int* i)
 {
-    char buffer[MAX_INPUT_LEN] = {};
+    DPRINTF("ReadNode(tree, %p);\n", node);
+
+    assert(tree   != NULL);
+    assert(node   != NULL);
+    assert(buffer != NULL);
+
+    TreeErr_t err = TREE_SUCCESS;
+
+    if (SkipLetter(buffer, i, '('))
+    {
+        return TREE_FILE_ERR;
+    }
+
+    char* data = NULL;
+
+    if ((err = ReadNodeData(buffer, i, &data)))
+    {
+        return err;
+    }
+
+    if ((err = TreeNodeCtor(tree, data, node)))
+    {
+        return err;
+    }
+    (*node)->data = data;
+
+    if ((err = ReadNodeChild(tree, &(*node)->left, buffer, i)))
+    {
+        return err;
+    }
+    if ((err = ReadNodeChild(tree, &(*node)->right, buffer, i)))
+    {
+        return err;
+    }
+
+    if (SkipLetter(buffer, i, ')'))
+    {
+        return TREE_FILE_ERR;
+    }
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t ReadNodeData(char* buffer, int* i, char** node_data)
+{
+    assert(node_data != NULL);
+    assert(buffer    != NULL);
+    assert(i         != NULL);
+
+    char word[MAX_INPUT_LEN] = {};
     int  data_len = 0;
 
-    if (fscanf(fp, "(", buffer, &data_len) != 1)
+    if (sscanf(&buffer[*i], "\"%[^\"]%n", word, &data_len) != 1)
     {
         PRINTERR("Error with reading data");
         return TREE_FILE_ERR;
     }
+    (*i) += data_len + 1;
 
-    if (fscanf(fp, "\"%[^\"]%n", buffer, &data_len) != 1)
+    DPRINTF("   word = %s;\n", word);
+
+    char* data = strdup(word);
+
+    if (data == NULL)
     {
-        PRINTERR("Error with reading data");
-        return TREE_FILE_ERR;
+        PRINTERR("Memory allocation failed");
+        return TREE_CALLOC_ERROR;
     }
 
+    *node_data = data;
 
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t ReadNodeChild(Tree_t* tree, TreeNode_t** child, char* buffer, int* i)
+{
+    assert(buffer != NULL);
+    assert(child  != NULL);
+    assert(i      != NULL);
+
+    if (strncmp(&buffer[*i], "nil", 3) == 0)
+    {
+        (*i) += 3;
+        return TREE_SUCCESS;
+    }
+
+    DPRINTF("   > ReadNode(tree, child=%p);\n", child);
+
+    return ReadNode(tree, child, buffer, i);
+}
+
+//------------------------------------------------------------------------------------------
+
+int SkipLetter(char* buffer, int* i, char letter)
+{
+    assert(buffer != NULL);
+    assert(i      != NULL);
+
+    if (buffer[*i] != letter)
+    {
+        PRINTERR("Error with reading %c, got %c (%d)", letter, buffer[*i], buffer[*i]);
+        return 1;
+    }
+    (*i)++;
+
+    DPRINTF("   Read %c\n", letter);
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------------------
+
+int ReadFile(FILE* fp, char** buffer_ptr, const char* file_path)
+{
+    assert(fp         != NULL);
+    assert(buffer_ptr != NULL);
+
+    size_t size = 0;
+
+    if (CountSize(file_path, &size))
+    {
+        return 1;
+    }
+
+    char* buffer = (char*) calloc(size / sizeof(char), sizeof(char));
+
+    if (buffer == NULL)
+    {
+        PRINTERR("Memory allocation failed");
+        return 1;
+    }
+
+    if (fread(buffer, size - 1, 1, fp) != 1)
+    {
+        PRINTERR("Reading file error");
+        return 1;
+    }
+
+    buffer[size - 1] = '\0';
+
+    DPRINTF("buffer last 2 chars: %d == %c; %d == %c\n",
+            buffer[size - 2], buffer[size - 2],
+            buffer[size - 1], buffer[size - 1]);
+
+    *buffer_ptr = buffer;
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------------------
+
+int CountSize(const char* file_path, size_t* size)
+{
+    struct stat fileinfo = {};
+
+    if (stat(file_path, &fileinfo) == -1)
+    {
+        PRINTERR("Error with stat()");
+        return 1;
+    }
+
+    *size = fileinfo.st_size + 1;
+
+    return 0;
 }
 
 //------------------------------------------------------------------------------------------
