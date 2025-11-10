@@ -45,13 +45,13 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-TreeErr_t TreeVerify           (Tree_t*     tree);
+TreeErr_t TreeVerify           (const Tree_t* tree);
 TreeErr_t TreeCtor             (Tree_t*     tree);
 TreeErr_t TreeNodeCtor         (Tree_t*     tree, TreeElem_t data, TreeNode_t** new_node);
 TreeErr_t TreeDtor             (Tree_t*     tree);
 TreeErr_t TreeInsert           (Tree_t*     tree, TreeElem_t data);
 
-TreeErr_t TreeNodeVerify       (Tree_t*     tree, TreeNode_t* node, size_t* calls_count);
+TreeErr_t TreeNodeVerify       (const Tree_t* tree, TreeNode_t* node, size_t* calls_count);
 TreeErr_t TreeSingleNodeDtor   (TreeNode_t*  node    );
 TreeErr_t TreeNodeDtor         (TreeNode_t*  node    );
 TreeErr_t TreeLeftSubtreeDtor  (TreeNode_t*  node    );
@@ -59,11 +59,11 @@ TreeErr_t TreeRightSubtreeDtor (TreeNode_t*  node    );
 TreeErr_t TreeSubtreeDtor      (TreeNode_t** node_ptr);
 
 #ifdef TREE_DEBUG
-TreeErr_t TreeCheck(Tree_t*     tree,
-                    const char* func,
-                    const char* file,
-                    int         line,
-                    const char* fmt, ...);
+TreeErr_t TreeCheck(const Tree_t* tree,
+                    const char*   func,
+                    const char*   file,
+                    int           line,
+                    const char*   fmt, ...);
 #endif /* TREE_DEBUG */
 
 //——————————————————————————————————————————————————————————————————————————————————————————

@@ -6,11 +6,11 @@
 
 #ifdef TREE_DEBUG
 
-TreeErr_t TreeCheck(Tree_t*     tree,
-                    const char* func,
-                    const char* file,
-                    int         line,
-                    const char* fmt, ...)
+TreeErr_t TreeCheck(const Tree_t* tree,
+                    const char*   func,
+                    const char*   file,
+                    int           line,
+                    const char*   fmt, ...)
 {
     assert(func != NULL);
     assert(file != NULL);
@@ -255,7 +255,7 @@ TreeErr_t TreeSingleNodeDtor(TreeNode_t* node)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeNodeVerify(Tree_t* tree, TreeNode_t* node, size_t* calls_count)
+TreeErr_t TreeNodeVerify(const Tree_t* tree, TreeNode_t* node, size_t* calls_count)
 {
     assert(calls_count != NULL);
     assert(tree        != NULL);
@@ -295,7 +295,7 @@ TreeErr_t TreeNodeVerify(Tree_t* tree, TreeNode_t* node, size_t* calls_count)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeVerify(Tree_t* tree)
+TreeErr_t TreeVerify(const Tree_t* tree)
 {
     if (tree == NULL)
     {

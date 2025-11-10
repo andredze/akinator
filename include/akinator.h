@@ -4,6 +4,7 @@
 //——————————————————————————————————————————————————————————————————————————————————————————
 
 #include "treeCommands.h"
+#include <time.h>
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
@@ -17,8 +18,13 @@ TreeErr_t AkinatorAddWord   (Tree_t* tree, TreeNode_t* guess_node);
 TreeErr_t AkinatorGetNewWord(char** new_word_data);
 TreeErr_t AkinatorGetFeature(char** feature_data, const char* guess_word, const char* new_word);
 
+TreeErr_t AkinatorWriteData (const Tree_t* tree);
+
+TreeErr_t WriteNodeToFile   (const TreeNode_t* node, FILE* fp);
+
 //——————————————————————————————————————————————————————————————————————————————————————————
 
+void MakeDataFilePath(char* data_file_path);
 void CleanBuffer();
 int GetUserAnswer();
 int GetShortAnswer(char* str, int size);
@@ -27,8 +33,10 @@ char ToLower(char letter);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-const int  MAX_INPUT_LEN = 1024;
-const char EMPTY_WORD[]  = "Неизвестно что";
+const int  MAX_TIME_LEN      = 64;
+const int  MAX_INPUT_LEN     = 1024;
+const int  MAX_FILE_NAME_LEN = 1024;
+const char EMPTY_WORD[]      = "Неизвестно что";
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 

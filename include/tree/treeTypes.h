@@ -50,6 +50,7 @@ typedef enum TreeErr
     TREE_CALLOC_ERROR,
     TREE_DUMP_ERROR,
     TREE_SYSTEM_FUNC_ERR,
+    TREE_FILE_ERR,
 
     TREE_INVALID_INPUT
 } TreeErr_t;
@@ -71,6 +72,7 @@ const char* const TREE_STR_ERRORS[] =
     [TREE_CALLOC_ERROR]       = "Memory allocation for tree failed",
     [TREE_DUMP_ERROR]         = "Error with dumping tree",
     [TREE_SYSTEM_FUNC_ERR]    = "System function failed",
+    [TREE_FILE_ERR]           = "Error with opening/writing to file",
     [TREE_INVALID_INPUT]      = "User input is invalid"
 };
 

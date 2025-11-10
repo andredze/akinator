@@ -11,37 +11,6 @@
          проверка на отрицание в ответе пользователя
 */
 
-//------------------------------------------------------------------------------------------
-
-int main()
-{
-    if (setlocale(LC_ALL, "C.UTF-8") == NULL)
-    {
-        printf("Error with setting UTF-8\n");
-        return EXIT_FAILURE;
-    }
-
-    char* codeset = nl_langinfo(CODESET);
-    printf("Текущая кодировка: %s\n", codeset);
-
-    Tree_t tree = {};
-
-    do {
-        if (TreeCtor(&tree))
-            break;
-
-//         TreeNode_t* sigma  = NULL;
-//         TreeNode_t* delta  = NULL;
-//         TreeNode_t* woman  = NULL;
-//         TreeNode_t* sanek  = NULL;
-//         TreeNode_t* angl   = NULL;
-//         TreeNode_t* anton  = NULL;
-//         TreeNode_t* treki  = NULL;
-//         TreeNode_t* makson = NULL;
-//         TreeNode_t* baizit = NULL;
-//         TreeNode_t* diskra = NULL;
-//         TreeNode_t* bbb    = NULL;
-//
 //         if (TreeNodeCtor(&tree, "сигма",                 &sigma))  break;
 //         if (TreeNodeCtor(&tree, "дельта",                &delta))  break;
 //         if (TreeNodeCtor(&tree, "признает женскую расу", &woman))  break;
@@ -71,11 +40,30 @@ int main()
 //         diskra->left = bbb;
 //         diskra->right = baizit;
 
+//------------------------------------------------------------------------------------------
+
+int main()
+{
+    if (setlocale(LC_ALL, "C.UTF-8") == NULL)
+    {
+        printf("Error with setting UTF-8\n");
+        return EXIT_FAILURE;
+    }
+
+    char* codeset = nl_langinfo(CODESET);
+    printf("Текущая кодировка: %s\n", codeset);
+
+    Tree_t tree = {};
+
+    do {
+        if (TreeCtor(&tree))
+            break;
+
         if (RunAkinator(&tree))
             break;
 
-        // if (AkinatorAddWord(&tree, anton))
-            // break;
+        if (AkinatorWriteData(&tree))
+            break;
 
     } while (0);
 
