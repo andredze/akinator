@@ -1,3 +1,5 @@
+#include <locale.h>
+#include <langinfo.h>
 #include "treeCommands.h"
 
 //------------------------------------------------------------------------------------------
@@ -45,10 +47,9 @@ TreeErr_t TreeCtor(Tree_t* tree)
     assert(tree != NULL);
 
     TreeNode_t* dummy = NULL;
+    TreeErr_t   error = TREE_SUCCESS;
 
-    TreeErr_t error = TREE_SUCCESS;
-
-    if ((error = TreeNodeCtor(tree, 0, &dummy)))
+    if ((error = TreeNodeCtor(tree, TREE_POISON, &dummy)))
     {
         return error;
     }
@@ -79,6 +80,8 @@ TreeErr_t TreeNodeCtor(Tree_t* tree, TreeElem_t data, TreeNode_t** new_node)
         return TREE_CALLOC_ERROR;
     }
 
+    node->left  = NULL;
+    node->right = NULL;
     node->data  = data;
 
     tree->size++;
@@ -104,9 +107,14 @@ TreeErr_t TreeInsert(Tree_t* tree, TreeElem_t data)
         return error;
     }
 
+    char answer[1000] = {};
+
     while (node != NULL)
     {
-        if (data <= node->data)
+        printf("Does your character %s? (y/n): ", node->data);
+        scanf("%s", answer);
+
+        if (strcmp(answer, "y") == 0)
         {
             if (node->left == NULL)
             {
@@ -115,7 +123,7 @@ TreeErr_t TreeInsert(Tree_t* tree, TreeElem_t data)
             }
             node = node->left;
         }
-        else
+        else if (strcmp(answer, "n") == 0)
         {
             if (node->right == NULL)
             {
@@ -233,6 +241,8 @@ TreeErr_t TreeSingleNodeDtor(TreeNode_t* node)
     {
         return TREE_NULL_NODE;
     }
+
+    free(node->data);
 
     node->data  = TREE_POISON;
     node->left  = NULL;
