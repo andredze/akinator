@@ -59,7 +59,7 @@ int main()
         if (TreeCtor(&tree))
             break;
 
-        if (AkinatorReadData(&tree, "data/10112025_225628.txt"))
+        if (AkinatorReadData(&tree, "data/11112025_024113.txt"))
             break;
 
         if (RunAkinator(&tree))
@@ -67,6 +67,10 @@ int main()
 
         if (AkinatorWriteData(&tree))
             break;
+
+        if (AkinatorDescribeWord(&tree, "Босс Борис"))
+            break;
+
     } while (0);
 
     TreeDtor(&tree);

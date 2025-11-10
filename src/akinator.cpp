@@ -151,10 +151,18 @@ TreeErr_t AkinatorAddWord(Tree_t* tree, TreeNode_t* guess_node)
     {
         return err;
     }
-    if ((err = AkinatorGetFeature(&feature_data, guess_node->data, new_word_data)))
+
+    int re_input_feature = 1;
+
+    while (re_input_feature)
     {
-        return err;
+        if ((err = AkinatorGetFeature(&feature_data, guess_node->data, new_word_data)))
+        {
+            return err;
+        }
+        re_input_feature = FeatureHasNegatives(feature_data);
     }
+
 
     TreeNode_t* new_word_node    = NULL;
     TreeNode_t* new_guessed_node = NULL;
@@ -244,6 +252,23 @@ TreeErr_t AkinatorGetFeature(char** feature_data, const char* guess_word, const 
     *feature_data = feature;
 
     return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+int FeatureHasNegatives(const char* feature)
+{
+    assert(feature != NULL);
+
+// TODO: внутри слова можно не
+
+    if (strstr(feature, "не ") != NULL || strstr(feature, " не ") != NULL)
+    {
+        free(feature);
+        return 1;
+    }
+
+    return 0;
 }
 
 //------------------------------------------------------------------------------------------
@@ -535,12 +560,12 @@ TreeErr_t ReadNodeData(char* buffer, int* i, char** node_data)
     char word[MAX_INPUT_LEN] = {};
     int  data_len = 0;
 
-    if (sscanf(&buffer[*i], "\"%[^\"]%n", word, &data_len) != 1)
+    if (sscanf(&buffer[*i], "\"%[^\"]\"%n", word, &data_len) != 1)
     {
         PRINTERR("Error with reading data");
         return TREE_FILE_ERR;
     }
-    (*i) += data_len + 1;
+    (*i) += data_len;
 
     DPRINTF("   word = %s;\n", word);
 
@@ -651,4 +676,186 @@ int CountSize(const char* file_path, size_t* size)
     return 0;
 }
 
+//------------------------------------------------------------------------------------------
+
+TreeErr_t AkinatorDescribeWord(Tree_t* tree, const char* word)
+{
+    assert(word != NULL);
+
+    DEBUG_TREE_CHECK(tree, "ERROR BEFORE AKINATOR GET DEFINITION");
+
+    if (DescribeWord(tree->dummy->right, word) == -1)
+    {
+        return TREE_NULL_NODE;
+    }
+    printf("\n");
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+int DescribeWord(TreeNode_t* node, const char* word)
+{
+    if (node == NULL)
+    {
+        return -1;
+    }
+
+    if (strcmp(node->data, word) == 0)
+    {
+        printf("%s ", node->data);
+        return 1;
+    }
+    if (DescribeWord(node->left, word) == 1)
+    {
+        printf("%s ", node->data);
+        return 1;
+    }
+    if (DescribeWord(node->right, word) == 1)
+    {
+        printf("не %s ", node->data);
+        return 1;
+    }
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------------------
+//
+// TreeErr_t AkinatorGetDefinition(Tree_t* tree, const char* word)
+// {
+//     assert(word != NULL);
+//
+//     DEBUG_TREE_CHECK(tree, "ERROR BEFORE AKINATOR GET DEFINITION");
+//
+//     TreeErr_t err = TREE_SUCCESS;
+//     Stack_t stack = {};
+//
+//     if (StackCtor(&stack, 64))
+//     {
+//         return TREE_STACK_ERR;
+//     }
+//
+//     int end_recursion = 0;
+//
+//     if (GetNodeDefinition(tree->dummy->right, &stack, word, &end_recursion))
+//     {
+//         StackDtor(&stack);
+//         return err;
+//     }
+//
+//     if (StackDtor(&stack))
+//     {
+//         return TREE_STACK_ERR;
+//     }
+//
+//     return TREE_SUCCESS;
+// }
+//
+// //------------------------------------------------------------------------------------------
+//
+// TreeErr_t GetNodeDefinition(TreeNode_t* node, Stack_t* stack, const char* word, int* end_recursion)
+// {
+//     assert(node != NULL);
+//
+//     DPRINTF("Handling word: %s\n", node->data);
+//
+//     if (strcmp(node->data, word) == 0)
+//     {
+//         DPRINTF("Нашел!! =))) %s\n", node->data);
+//         PrintWordDefinition(word, stack);
+//         *end_recursion = 1;
+//         return TREE_SUCCESS;
+//     }
+//
+//     TreeErr_t err = TREE_SUCCESS;
+//
+//     DPRINTF("pushing: %s..\n", node->data);
+//
+//     if (StackPush(stack, node))
+//     {
+//         return TREE_STACK_ERR;
+//     }
+//
+//     if (node->left != NULL)
+//     {
+//         if ((err = GetNodeDefinition(node->left, stack, word, end_recursion)))
+//         {
+//             return err;
+//         }
+//         if (*end_recursion)
+//         {
+//             return TREE_SUCCESS;
+//         }
+//     }
+//     if (node->right != NULL)
+//     {
+//         if ((err = GetNodeDefinition(node->right, stack, word, end_recursion)))
+//         {
+//             return err;
+//         }
+//         if (*end_recursion)
+//         {
+//             return TREE_SUCCESS;
+//         }
+//     }
+//
+//     TreeNode_t* last_node;
+//     if (StackPop(stack, &last_node))
+//     {
+//         return TREE_STACK_ERR;
+//     }
+//     DPRINTF("poping: %s..\n", node->data);
+//
+//     return TREE_SUCCESS;
+// }
+//
+// //------------------------------------------------------------------------------------------
+//
+// TreeErr_t PrintWordDefinition(const char* word, Stack_t* stack)
+// {
+//     assert(word  != NULL);
+//     assert(stack != NULL);
+//
+//     DPRINTF("stack->size = %zu\n", stack->size);
+//
+//     char** features = (char**) calloc(stack->size, sizeof(char*));
+//
+//     if (features == NULL)
+//     {
+//         return TREE_CALLOC_ERROR;
+//     }
+//
+//     TreeNode_t* node = NULL;
+//
+//     for (int i = stack->size - 1; i >= 0; i--)
+//     {
+//         DPRINTF("i = %d;\n", i);
+//
+//         if (StackPop(stack, &node))
+//         {
+//             free(features);
+//             return TREE_STACK_ERR;
+//         }
+//
+//         DPRINTF("poped: %s\n", node->data);
+//
+//         features[i] = node->data;
+//
+//         DPRINTF("features[%d] = %s;\n", i, features[i]);
+//     }
+//
+//     for (int i = 0; i < stack->size; i++)
+//     {
+//         DPRINTF("features[%d] = %s;\n", i, features[i]);
+//         printf("features[%d] = %s;\n", i, features[i]);
+//         fflush(stdout);
+//     }
+//
+//     free(features);
+//
+//     return TREE_SUCCESS;
+// }
+//
 //------------------------------------------------------------------------------------------

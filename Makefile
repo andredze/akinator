@@ -18,7 +18,8 @@ CXXFLAGS = -I include -I include/tree -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wex
 
 SOURCES = src/main.cpp \
 		  src/akinator.cpp \
-		  src/tree/treeCommands.cpp
+		  src/tree/treeCommands.cpp \
+		  src/stack.cpp
 
 ifdef DEBUG
 CXXFLAGS += -D TREE_DEBUG
