@@ -7,6 +7,7 @@
 #include "stack.h"
 #include <time.h>
 #include <string.h>
+#include <sys/stat.h>
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
@@ -23,7 +24,7 @@ TreeErr_t AkinatorMakeGuess (Tree_t* tree, TreeNode_t** node_ptr, int answer);
 TreeErr_t AkinatorAddWord    (Tree_t* tree, TreeNode_t* guess_node);
 TreeErr_t AkinatorGetNewWord (char** new_word_data);
 TreeErr_t AkinatorGetFeature (char** feature_data, const char* guess_word, const char* new_word);
-int       FeatureHasNegatives(const char* feature);
+int       FeatureHasNegatives(char* feature);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 

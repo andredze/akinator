@@ -12,12 +12,10 @@ TreeErr_t RunAkinator(Tree_t* tree)
     }
 
     int user_active = 1;
+    int answer = 'y';
 
     while (user_active)
     {
-        printf("Начать угадывание слова? ");
-
-        int answer = GetUserAnswer();
         TreeErr_t err = TREE_SUCCESS;
 
         switch (answer)
@@ -40,6 +38,12 @@ TreeErr_t RunAkinator(Tree_t* tree)
             default:
                 printf("Введите ответ в виде (да/нет)!\n");
                 break;
+        }
+
+        if (user_active)
+        {
+            printf("Начать угадывание слова заново? ");
+            answer = GetUserAnswer();
         }
     }
 
@@ -125,7 +129,7 @@ TreeErr_t AkinatorMakeGuess(Tree_t* tree, TreeNode_t** node_ptr, int answer)
             break;
 
         case 'n':
-            printf("Ебать ты кого там загадал(-а)\n");
+            printf("Капец ты кого там загадал(-а)\n");
             return AkinatorAddWord(tree, *node_ptr);
 
         default:
@@ -256,7 +260,7 @@ TreeErr_t AkinatorGetFeature(char** feature_data, const char* guess_word, const 
 
 //------------------------------------------------------------------------------------------
 
-int FeatureHasNegatives(const char* feature)
+int FeatureHasNegatives(char* feature)
 {
     assert(feature != NULL);
 
@@ -699,7 +703,7 @@ int DescribeWord(TreeNode_t* node, const char* word)
 {
     if (node == NULL)
     {
-        return -1;
+        return 0;
     }
 
     if (strcmp(node->data, word) == 0)

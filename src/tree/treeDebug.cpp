@@ -209,8 +209,7 @@ void DumpGraphTitle(FILE* dot_file)
 
     fprintf(dot_file,
     "digraph Tree\n{\n\t"
-    R"(graph [splines=ortho];
-    ranksep=0.75;
+    R"(ranksep=0.75;
     nodesep=0.5;
     node [
         fontname  = "Arial",
@@ -349,13 +348,13 @@ int MakeTreeEdges(const TreeNode_t* node, FILE* fp)
     {
         char name_left [MAX_NODE_NAME_LEN] = "";
         sprintf (name_left , "node%p", node->left );
-        MakeEdge(name_node, name_left , NULL, NULL, NULL, NULL, NULL, NULL, fp);
+        MakeEdge(name_node, name_left , "#006400", NULL, NULL, NULL, NULL, NULL, "Да", fp);
     }
     if (node->right != NULL)
     {
         char name_right[MAX_NODE_NAME_LEN] = "";
         sprintf (name_right, "node%p", node->right);
-        MakeEdge(name_node, name_right, NULL, NULL, NULL, NULL, NULL, NULL, fp);
+        MakeEdge(name_node, name_right, "#640000", NULL, NULL, NULL, NULL, NULL, "Нет", fp);
     }
 
     return 0;
@@ -443,6 +442,7 @@ int MakeEdge(const char* node1,
              const char* style,
              const char* arrowhead,
              const char* arrowtail,
+             const char* label,
              FILE*       fp)
 {
     assert(node1 != NULL);
@@ -458,6 +458,7 @@ int MakeEdge(const char* node1,
     PrintArg("style",      style,      &is_first_arg, fp);
     PrintArg("arrowhead",  arrowhead,  &is_first_arg, fp);
     PrintArg("arrowtail",  arrowtail,  &is_first_arg, fp);
+    PrintArg("label",      label,      &is_first_arg, fp);
 
     if (is_first_arg == 0)
     {

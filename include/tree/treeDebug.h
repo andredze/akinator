@@ -67,6 +67,7 @@ int MakeEdge(
     const char* style,
     const char* arrowhead,
     const char* arrowtail,
+    const char* label,
     FILE*       fp);
 
 int PrintArg(
