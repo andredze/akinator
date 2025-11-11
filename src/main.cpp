@@ -59,7 +59,7 @@ int main()
         if (TreeCtor(&tree))
             break;
 
-        if (AkinatorReadData(&tree, "data/11112025_154608.txt"))
+        if (AkinatorReadData(&tree, "data/11112025_120911.txt")) // 11112025_154608.txt
             break;
 
         if (RunAkinator(&tree))

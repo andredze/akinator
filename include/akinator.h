@@ -13,6 +13,7 @@
 
 TreeErr_t RunAkinator       (Tree_t* tree);
 TreeErr_t MakeEmptyNode     (Tree_t* tree);
+TreeErr_t AkinatorNodeCtor  (Tree_t* tree, const char* word, TreeNode_t** node_ptr);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 

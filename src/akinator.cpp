@@ -6,9 +6,15 @@ TreeErr_t RunAkinator(Tree_t* tree)
 {
     DEBUG_TREE_CHECK(tree, "ERROR BEFORE AKINATOR GUESS");
 
+    TreeErr_t err = TREE_SUCCESS;
+
     if (tree->dummy->right == NULL)
     {
-        MakeEmptyNode(tree);
+        /* Make empty word for easier program usage */
+        if ((err = AkinatorNodeCtor(tree, EMPTY_WORD, &tree->dummy->right)))
+        {
+            return err;
+        }
     }
 
     int user_active = 1;
@@ -16,8 +22,6 @@ TreeErr_t RunAkinator(Tree_t* tree)
 
     while (user_active)
     {
-        TreeErr_t err = TREE_SUCCESS;
-
         switch (answer)
         {
             case 'y':
@@ -68,6 +72,22 @@ TreeErr_t MakeEmptyNode(Tree_t* tree)
     strcpy(empty_data, EMPTY_WORD);
 
     return TreeNodeCtor(tree, empty_data, &tree->dummy->right);
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t AkinatorNodeCtor(Tree_t* tree, const char* word, TreeNode_t** node_ptr)
+{
+    assert(tree != NULL);
+
+    char* data = strdup(word);
+
+    if (data == NULL)
+    {
+        return TREE_CALLOC_ERROR;
+    }
+
+    return TreeNodeCtor(tree, data, node_ptr);
 }
 
 //------------------------------------------------------------------------------------------
@@ -167,7 +187,6 @@ TreeErr_t AkinatorAddWord(Tree_t* tree, TreeNode_t* guess_node)
         re_input_feature = FeatureHasNegatives(feature_data);
     }
 
-
     TreeNode_t* new_word_node    = NULL;
     TreeNode_t* new_guessed_node = NULL;
 
@@ -209,14 +228,12 @@ TreeErr_t AkinatorGetNewWord(char** new_word_data)
 
     CleanBuffer();
 
-    char* new_word = (char*) calloc(new_word_len + 1, sizeof(char));
+    char* new_word = strdup(new_word_buf);
 
     if (new_word == NULL)
     {
         return TREE_CALLOC_ERROR;
     }
-
-    strcpy(new_word, new_word_buf);
 
     *new_word_data = new_word;
 
@@ -244,14 +261,12 @@ TreeErr_t AkinatorGetFeature(char** feature_data, const char* guess_word, const 
 
     CleanBuffer();
 
-    char* feature = (char*) calloc(feature_len + 1, sizeof(char));
+    char* feature = strdup(feature_buf);
 
     if (feature == NULL)
     {
         return TREE_CALLOC_ERROR;
     }
-
-    strcpy(feature, feature_buf);
 
     *feature_data = feature;
 
@@ -372,10 +387,10 @@ char ToLower(char letter)
     }
 
     /* Russian */
-    if (letter >= 'А' && letter <= 'Я')
-    {
-        return letter + 'а' - 'А';
-    }
+    // if (letter >= 'А' && letter <= 'Я')
+    // {
+    //     return letter + 'а' - 'А';
+    // }
 
     return letter;
 }
