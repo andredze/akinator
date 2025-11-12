@@ -25,7 +25,7 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-#ifdef DEBUG2
+#ifdef DEBUG
     #define DPRINTF(text, ...)                                          \
             BEGIN                                                       \
             fprintf(stderr, YELLOW text RESET_CLR, ##__VA_ARGS__);      \

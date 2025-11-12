@@ -26,6 +26,8 @@ typedef struct TreeNode
     TreeElem_t       data ;
     struct TreeNode* left ;
     struct TreeNode* right;
+
+    int dynamic_memory;
 } TreeNode_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————

@@ -7,13 +7,14 @@
 #include "stack.h"
 #include <time.h>
 #include <string.h>
+#include <ctype.h>
 #include <sys/stat.h>
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-TreeErr_t RunAkinator       (Tree_t* tree);
-TreeErr_t MakeEmptyNode     (Tree_t* tree);
-TreeErr_t AkinatorNodeCtor  (Tree_t* tree, const char* word, TreeNode_t** node_ptr);
+TreeErr_t RunAkinator               (Tree_t* tree); 
+TreeErr_t AkinatorExecuteProgramOnce(Tree_t* tree, int answer, int* user_active);
+TreeErr_t AkinatorNodeCtor          (Tree_t* tree, const char* word, TreeNode_t** node_ptr);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
@@ -40,7 +41,6 @@ TreeErr_t ReadNode          (Tree_t* tree, TreeNode_t** node, char* buffer, int*
 //——————————————————————————————————————————————————————————————————————————————————————————
 
 TreeErr_t ReadNodeData      (char* buffer, int* i, char** data);
-TreeErr_t ReadNodeChild     (Tree_t* tree, TreeNode_t** child, char* buffer, int* i);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
@@ -55,9 +55,10 @@ TreeErr_t PrintWordDefinition   (const char* word, Stack_t* stack);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-int ReadFile    (FILE* fp, char** buffer_ptr, const char* file_path);
-int CountSize   (const char* file_path, size_t* size);
-int SkipLetter  (char* buffer, int* i, char letter);
+int  ReadFile    (FILE* fp, char** buffer_ptr, const char* file_path);
+int  CountSize   (const char* file_path, size_t* size);
+int  SkipLetter  (char* buffer, int* i, char letter);
+void SkipSpaces  (char* buffer, int* pos);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 

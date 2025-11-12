@@ -22,28 +22,10 @@ TreeErr_t RunAkinator(Tree_t* tree)
 
     while (user_active)
     {
-        switch (answer)
+        if ((err = AkinatorExecuteProgramOnce(tree, answer, &user_active)))
         {
-            case 'y':
-                if ((err = AkinatorGuessWord(tree, &user_active)))
-                {
-                    return err;
-                }
-                break;
-
-            case 'n':
-                printf("Завершение программы, хорошего дня :)\n");
-                user_active = 0;
-                break;
-
-            case EOF:
-                return TREE_INVALID_INPUT;
-
-            default:
-                printf("Введите ответ в виде (да/нет)!\n");
-                break;
+            return err;
         }
-
         if (user_active)
         {
             printf("Начать угадывание слова заново? ");
@@ -58,20 +40,35 @@ TreeErr_t RunAkinator(Tree_t* tree)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t MakeEmptyNode(Tree_t* tree)
+TreeErr_t AkinatorExecuteProgramOnce(Tree_t* tree, int answer, int* user_active)
 {
-    assert(tree != NULL);
+    assert(user_active != NULL);
 
-    char* empty_data = (char*) calloc(sizeof(EMPTY_WORD) / sizeof(char), sizeof(char));
+    TreeErr_t err = TREE_SUCCESS;
 
-    if (empty_data == NULL)
+    switch (answer)
     {
-        return TREE_CALLOC_ERROR;
+        case 'y':
+            if ((err = AkinatorGuessWord(tree, user_active)))
+            {
+                return err;
+            }
+            break;
+
+        case 'n':
+            printf("Завершение программы, хорошего дня :)\n");
+            *user_active = 0;
+            break;
+
+        case EOF:
+            return TREE_INVALID_INPUT;
+
+        default:
+            printf("Введите ответ в виде (да/нет)!\n");
+            break;
     }
 
-    strcpy(empty_data, EMPTY_WORD);
-
-    return TreeNodeCtor(tree, empty_data, &tree->dummy->right);
+    return TREE_SUCCESS;
 }
 
 //------------------------------------------------------------------------------------------
@@ -86,6 +83,8 @@ TreeErr_t AkinatorNodeCtor(Tree_t* tree, const char* word, TreeNode_t** node_ptr
     {
         return TREE_CALLOC_ERROR;
     }
+
+    (*node_ptr)->dynamic_memory = 1;
 
     return TreeNodeCtor(tree, data, node_ptr);
 }
@@ -523,46 +522,63 @@ TreeErr_t AkinatorReadData(Tree_t* tree, const char* data_file_path)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, int* i)
+TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, int* pos)
 {
     DPRINTF("ReadNode(tree, %p);\n", node);
 
+    assert(buffer != NULL);
     assert(tree   != NULL);
     assert(node   != NULL);
-    assert(buffer != NULL);
 
-    TreeErr_t err = TREE_SUCCESS;
+    TreeErr_t error = TREE_SUCCESS;
+    char first_char = buffer[*pos];
 
-    if (SkipLetter(buffer, i, '('))
+    if (first_char == '(')
     {
-        return TREE_FILE_ERR;
+        (*pos)++;
+        TreeReadBufferDump(buffer, *pos, "BUFFER DUMP SKIPPING OPENING BRACKET");
+
+        char* data = NULL;
+
+        if ((error = ReadNodeData(buffer, pos, &data)))
+            return error;
+
+        TreeReadBufferDump(buffer, *pos, "BUFFER DUMP AFTER READING %s", data);
+
+        if ((error = TreeNodeCtor(tree, data, node)))
+            return error;
+
+        TREE_CALL_DUMP(tree, "DUMP AFTER NODE CTOR %s", data);
+
+        (*node)->dynamic_memory = 1;
+
+        if ((error = ReadNode(tree, &(*node)->left,  buffer, pos)))
+            return error;
+
+        TreeReadBufferDump(buffer, *pos, "BUFFER DUMP AFTER READING NODE LEFT TO %s", data);
+
+        if ((error = ReadNode(tree, &(*node)->right, buffer, pos)))
+            return error;
+
+        TreeReadBufferDump(buffer, *pos, "BUFFER DUMP AFTER READING NODE RIGHT TO %s", data);
+
+        if (SkipLetter(buffer, pos, ')'))
+            return TREE_INVALID_INPUT;
+
+        SkipSpaces(buffer, pos);
+
+        TreeReadBufferDump(buffer, *pos, "BUFFER DUMP AFTER SKIPPING CLOSING BRACKET after %s", data);
     }
-
-    char* data = NULL;
-
-    if ((err = ReadNodeData(buffer, i, &data)))
+    else if (strncmp(&buffer[*pos], "nil", 3) == 0)
     {
-        return err;
+        (*pos) += 3;
+        SkipSpaces(buffer, pos);
+        TreeReadBufferDump(buffer, *pos, "BUFFER DUMP AFTER READING NULL");
     }
-
-    if ((err = TreeNodeCtor(tree, data, node)))
+    else
     {
-        return err;
-    }
-    (*node)->data = data;
-
-    if ((err = ReadNodeChild(tree, &(*node)->left, buffer, i)))
-    {
-        return err;
-    }
-    if ((err = ReadNodeChild(tree, &(*node)->right, buffer, i)))
-    {
-        return err;
-    }
-
-    if (SkipLetter(buffer, i, ')'))
-    {
-        return TREE_FILE_ERR;
+        PRINTERR("Syntax error in Akinator data (unknown symbol = \"%c\" )\n", first_char);
+        return TREE_INVALID_INPUT;
     }
 
     return TREE_SUCCESS;
@@ -570,21 +586,25 @@ TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, int* i)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t ReadNodeData(char* buffer, int* i, char** node_data)
+TreeErr_t ReadNodeData(char* buffer, int* pos, char** node_data)
 {
     assert(node_data != NULL);
     assert(buffer    != NULL);
-    assert(i         != NULL);
+    assert(pos       != NULL);
 
     char word[MAX_INPUT_LEN] = {};
     int  data_len = 0;
 
-    if (sscanf(&buffer[*i], "\"%[^\"]\"%n", word, &data_len) != 1)
+    SkipSpaces(buffer, pos);
+
+    if (sscanf(&buffer[*pos], "\"%[^\"]\"%n", word, &data_len) != 1)
     {
         PRINTERR("Error with reading data");
         return TREE_FILE_ERR;
     }
-    (*i) += data_len;
+    (*pos) += data_len;
+
+    SkipSpaces(buffer, pos);
 
     DPRINTF("   word = %s;\n", word);
 
@@ -603,36 +623,30 @@ TreeErr_t ReadNodeData(char* buffer, int* i, char** node_data)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t ReadNodeChild(Tree_t* tree, TreeNode_t** child, char* buffer, int* i)
+void SkipSpaces(char* buffer, int* pos)
 {
     assert(buffer != NULL);
-    assert(child  != NULL);
-    assert(i      != NULL);
+    assert(pos    != NULL);
 
-    if (strncmp(&buffer[*i], "nil", 3) == 0)
+    while (buffer[*pos] != '\0' && isspace(buffer[*pos]))
     {
-        (*i) += 3;
-        return TREE_SUCCESS;
+        (*pos)++;
     }
-
-    DPRINTF("   > ReadNode(tree, child=%p);\n", child);
-
-    return ReadNode(tree, child, buffer, i);
 }
 
 //------------------------------------------------------------------------------------------
 
-int SkipLetter(char* buffer, int* i, char letter)
+int SkipLetter(char* buffer, int* pos, char letter)
 {
     assert(buffer != NULL);
-    assert(i      != NULL);
+    assert(pos    != NULL);
 
-    if (buffer[*i] != letter)
+    if (buffer[*pos] != letter)
     {
-        PRINTERR("Error with reading %c, got %c (%d)", letter, buffer[*i], buffer[*i]);
+        PRINTERR("Syntax error: expected %c, got %c (%d)", letter, buffer[*pos], buffer[*pos]);
         return 1;
     }
-    (*i)++;
+    (*pos)++;
 
     DPRINTF("   Read %c\n", letter);
 
@@ -644,6 +658,7 @@ int SkipLetter(char* buffer, int* i, char letter)
 int ReadFile(FILE* fp, char** buffer_ptr, const char* file_path)
 {
     assert(fp         != NULL);
+    assert(file_path  != NULL);
     assert(buffer_ptr != NULL);
 
     size_t size = 0;

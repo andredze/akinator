@@ -58,7 +58,8 @@ TreeErr_t TreeCtor(Tree_t* tree)
 
     tree->size  = 0;
 
-    TREE_CALL_DUMP(tree, "DUMP AFTER CTOR");
+    DEBUG_TREE_CHECK(tree, "ERROR DUMP AFTER CTOR");
+    // TREE_CALL_DUMP(tree, "DUMP AFTER CTOR");
 
     DPRINTF("> TreeCtor   END\n");
 
@@ -69,10 +70,13 @@ TreeErr_t TreeCtor(Tree_t* tree)
 
 TreeErr_t TreeNodeCtor(Tree_t* tree, TreeElem_t data, TreeNode_t** new_node)
 {
-    assert(tree     != NULL);
-    assert(new_node != NULL);
+    if (new_node == NULL)
+    {
+        PRINTERR("Null node_ptr given to insert to");
+        return TREE_NULL_NODE;
+    }
 
-    TreeNode_t* node = (TreeNode_t*) calloc (1, sizeof(TreeNode_t));
+    TreeNode_t* node = (TreeNode_t*) calloc(1, sizeof(TreeNode_t));
 
     if (node == NULL)
     {
@@ -242,7 +246,10 @@ TreeErr_t TreeSingleNodeDtor(TreeNode_t* node)
         return TREE_NULL_NODE;
     }
 
-    free(node->data);
+    if (node->dynamic_memory)
+    {
+        free(node->data);
+    }
 
     node->data  = TREE_POISON;
     node->left  = NULL;

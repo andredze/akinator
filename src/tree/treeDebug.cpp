@@ -18,22 +18,18 @@ int SetDirectories(char* log_filename, char* log_dir)
 
     strftime(time_dir, sizeof(time_dir), "%d%m%Y_%H%M%S", info);
 
-    snprintf(log_dir, 100, "log/%s", time_dir);
+    snprintf(log_dir, MAX_FILENAME_LEN, "log/%s", time_dir);
     mkdir(log_dir, 0777);
 
-    sprintf(image_dir, "log/%s/svg", time_dir);
-
-    DPRINTF("image_dir = %s;\n", image_dir);
+    snprintf(image_dir, sizeof(image_dir), "log/%s/svg", time_dir);
     mkdir(image_dir, 0777);
 
-    DPRINTF("image_dir = %s;\n", image_dir);
-
-    sprintf(dot_dir, "log/%s/dot", time_dir);
-
-    DPRINTF("dot_dir   = %s;\n", dot_dir);
+    snprintf(dot_dir, sizeof(dot_dir), "log/%s/dot", time_dir);
     mkdir(dot_dir, 0777);
 
-    sprintf(log_filename, "log/%s/tree.html", time_dir);
+    snprintf(log_filename, MAX_FILENAME_LEN, "log/%s/tree.html", time_dir);
+
+    DPRINTF("Made logs: log_dir = %s;\n", log_dir);
 
     return 0;
 }
@@ -56,6 +52,47 @@ TreeErr_t TreeDump(const Tree_t*         tree,
 
 //------------------------------------------------------------------------------------------
 
+TreeErr_t TreeReadBufferDump(const char* buffer, int pos, const char* fmt, ...)
+{
+    assert(fmt != NULL);
+
+    va_list args = {};
+    va_start(args, fmt);
+
+    TreeErr_t error = TREE_SUCCESS;
+    FILE* fp = NULL;
+
+    if ((error = TreeOpenLogFile(&fp, NULL, NULL)))
+        return error;
+
+    fprintf(fp, "<pre><h4><font color=blue>");
+
+    vfprintf(fp, fmt, args);
+
+    fprintf(fp, "</h4></font>\n"
+                "<font color=gray>");
+
+    for (int i = 0; i < pos; i++)
+    {
+        fprintf(fp, "%c", buffer[i]);
+    }
+
+    fprintf(fp, "</font><font color=red>%c</font>", buffer[pos]);
+
+    if (*(buffer + pos) != '\0')
+    {
+        fprintf(fp, "<font color=blue>%s</font>\n\n", buffer + pos + 1);
+    }
+
+    fclose(fp);
+
+    va_end(args);
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
 TreeErr_t vTreeDump(const Tree_t*         tree,
                     const TreeDumpInfo_t* dump_info,
                     const char* fmt, va_list args)
@@ -63,28 +100,18 @@ TreeErr_t vTreeDump(const Tree_t*         tree,
     assert(tree      != NULL);
     assert(dump_info != NULL);
 
-    static int calls_count = 0;
-    calls_count++;
+    TreeErr_t error = TREE_SUCCESS;
 
-    static char log_filename [MAX_FILENAME_LEN] = "";
-    static char log_dir      [MAX_FILENAME_LEN] = "";
+    FILE* fp = NULL;
+    int   calls_count = 0;
+    char  log_dir[MAX_FILENAME_LEN] = "";
 
-    if (calls_count == 1)
-    {
-        SetDirectories(log_filename, log_dir);
-    }
+    if ((error = TreeOpenLogFile(&fp, &calls_count, log_dir)))
+        return error;
 
     char graph_name[MAX_FILENAME_LEN] = {};
 
-    sprintf(graph_name, "%04d", calls_count);
-
-    FILE* fp = fopen(log_filename, calls_count == 1 ? "w" : "a");
-
-    if (fp == NULL)
-    {
-        PRINTERR("Opening logfile %s failed", log_filename);
-        return TREE_DUMP_ERROR;
-    }
+    snprintf(graph_name, sizeof(graph_name), "%04d", calls_count);
 
     fprintf(fp, "<pre>\n<h3><font color=blue>");
 
@@ -104,10 +131,10 @@ TreeErr_t vTreeDump(const Tree_t*         tree,
                 dump_info->file,
                 dump_info->line);
 
-    fprintf(fp, "tree [%p]:\n\n", tree);
-
-    fprintf(fp, "size  = %zu;\n", tree->size);
-    fprintf(fp, "dummy = %p;\n", tree->dummy);
+    fprintf(fp, "tree [%p]:\n\n"
+                "size  = %zu;\n"
+                "dummy = %p;\n",
+                tree, tree->size, tree->dummy);
 
     TreeErr_t graph_error = TREE_SUCCESS;
     if ((graph_error = TreeGraphDump(tree, graph_name, log_dir)))
@@ -116,12 +143,48 @@ TreeErr_t vTreeDump(const Tree_t*         tree,
         return graph_error;
     }
 
-    fprintf(fp, "\n<img src = svg/%s.svg width = 50%%>\n\n"
+    int image_width = tree->size <= 5 ? 25 : 50;
+
+    fprintf(fp, "\n<img src = svg/%s.svg width = %d%%>\n\n"
                 "============================================================="
                 "=============================================================\n\n",
-                graph_name);
+                graph_name, image_width);
 
     fclose(fp);
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t TreeOpenLogFile(FILE** fp_ptr, int* calls_count_ptr, char* dest_log_dir)
+{
+    assert(fp_ptr != NULL);
+
+    static int  calls_count = 0;
+    static char log_filename [MAX_FILENAME_LEN] = "";
+    static char log_dir      [MAX_FILENAME_LEN] = "";
+
+    calls_count++;
+
+    if (calls_count == 1)
+    {
+        SetDirectories(log_filename, log_dir);
+    }
+
+    *fp_ptr = fopen(log_filename, calls_count == 1 ? "w" : "a");
+
+    if (*fp_ptr == NULL)
+    {
+        PRINTERR("Opening logfile %s failed", log_filename);
+        return TREE_DUMP_ERROR;
+    }
+
+    if (dest_log_dir != NULL)
+        strcpy(dest_log_dir, log_dir);
+
+    if (calls_count_ptr != NULL)
+        *calls_count_ptr = calls_count;
 
     return TREE_SUCCESS;
 }
@@ -279,37 +342,28 @@ TreeErr_t TreeNodeDump(const TreeNode_t* node, FILE* fp)
 
     return TREE_SUCCESS;
 }
+
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeNodePrint(const TreeNode_t* node)
+void TreeNodePrint(const TreeNode_t* node)
 {
     assert(node != NULL);
-
-    TreeErr_t error = TREE_SUCCESS;
 
     printf("(");
 
     if (node->left != NULL)
     {
-        if ((error = TreeNodePrint(node->left)))
-        {
-            return error;
-        }
+        TreeNodePrint(node->left);
     }
 
     printf(" " TREE_SPEC " ", node->data);
 
     if (node->right != NULL)
     {
-        if ((error = TreeNodePrint(node->right)))
-        {
-            return error;
-        }
+        TreeNodePrint(node->right);
     }
 
     printf(")");
-
-    return TREE_SUCCESS;
 }
 
 //------------------------------------------------------------------------------------------
@@ -320,7 +374,7 @@ TreeErr_t TreeSingleNodeDump(const TreeNode_t* node, FILE* fp)
     {
         return TREE_DUMP_ERROR;
     }
-    if (MakeTreeEdges      (node, fp))
+    if (MakeTreeEdges(node, fp))
     {
         return TREE_DUMP_ERROR;
     }

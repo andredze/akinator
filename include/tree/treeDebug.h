@@ -10,6 +10,10 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
+TreeErr_t TreeReadBufferDump(const char* buffer,
+                             int pos,
+                             const char* fmt, ...);
+
 TreeErr_t TreeDump(const Tree_t*         tree,
                    const TreeDumpInfo_t* dump_info,
                    const char* fmt, ...);
@@ -17,6 +21,8 @@ TreeErr_t TreeDump(const Tree_t*         tree,
 TreeErr_t vTreeDump(const Tree_t*         tree,
                     const TreeDumpInfo_t* dump_info,
                     const char* fmt, va_list args);
+
+TreeErr_t TreeOpenLogFile(FILE** fp_ptr, int* calls_count_ptr, char* dest_log_dir);
 
 TreeErr_t TreeGraphDump       (const Tree_t* tree,
                                const char* image_name,
@@ -32,7 +38,7 @@ void DumpGraphTitle           (FILE* dot_file);
 TreeErr_t TreeConvertGraphFile(const char* dot_file_path,
                                const char* svg_file_path);
 
-TreeErr_t TreeNodePrint       (const TreeNode_t* node          );
+void      TreeNodePrint       (const TreeNode_t* node          );
 TreeErr_t TreeNodeDump        (const TreeNode_t* node, FILE* fp);
 TreeErr_t TreeSingleNodeDump  (const TreeNode_t* node, FILE* fp);
 int       MakeTreeEdges       (const TreeNode_t* node, FILE* fp);
