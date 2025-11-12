@@ -12,7 +12,7 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-TreeErr_t RunAkinator               (Tree_t* tree); 
+TreeErr_t RunAkinator               (Tree_t* tree);
 TreeErr_t AkinatorExecuteProgramOnce(Tree_t* tree, int answer, int* user_active);
 TreeErr_t AkinatorNodeCtor          (Tree_t* tree, const char* word, TreeNode_t** node_ptr);
 
@@ -62,11 +62,9 @@ void SkipSpaces  (char* buffer, int* pos);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-int   GetUserAnswer    (    void    );
-int   GetShortAnswer   (char* str,  int size);
-char* StringToLower    (char* dest, const char* src);
-char  ToLower          (char  letter);
-void  CleanBuffer      (    void    );
+int   GetUserAnswer    (void);
+int   GetShortAnswer   (char* str);
+void  CleanBuffer      (void);
 void  MakeDataFilePath (char* data_file_path);
 
 //——————————————————————————————————————————————————————————————————————————————————————————

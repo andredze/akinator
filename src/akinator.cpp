@@ -297,11 +297,10 @@ int FeatureHasNegatives(char* feature)
 int GetUserAnswer()
 {
     char answer[MAX_INPUT_LEN] = {};
-    int  answer_len = 0;
 
     // TODO: что если пользователь ввел слишком много
 
-    if (scanf("%s%n", answer, &answer_len) != 1)
+    if (scanf("%63s", answer) != 1)
     {
         PRINTERR("Scanf failed");
         return EOF;
@@ -309,42 +308,27 @@ int GetUserAnswer()
 
     CleanBuffer();
 
-    return GetShortAnswer(answer, answer_len + 1);
+    return GetShortAnswer(answer);
 }
 
 //------------------------------------------------------------------------------------------
 
-int GetShortAnswer(char* str, int size)
+int GetShortAnswer(char* str)
 {
     assert(str != NULL);
 
-    char* lowered = (char*) calloc(size, sizeof(char));
-
-    if (lowered == NULL)
+    if (strcmp(str, "да") == 0)
     {
-        PRINTERR("Memory allocation failed");
-        return EOF;
-    }
-
-    StringToLower(lowered, str);
-
-    if (strcmp(lowered, "да") == 0)
-    {
-        free(lowered);
         return 'y';
     }
-    else if (strcmp(lowered, "нет") == 0)
+    else if (strcmp(str, "нет") == 0)
     {
-        free(lowered);
         return 'n';
     }
-    else if (strcmp(lowered, "выход") == 0)
+    else if (strcmp(str, "выход") == 0)
     {
-        free(lowered);
         return 'e';
     }
-
-    free(lowered);
 
     return '\0';
 }
@@ -359,42 +343,6 @@ void CleanBuffer()
     {
         ; // do nothing
     }
-}
-
-//------------------------------------------------------------------------------------------
-
-char* StringToLower(char* dest, const char* src)
-{
-    assert(src  != NULL);
-    assert(dest != NULL);
-
-    char* start = dest;
-
-    for (; *src != '\0'; dest++, src++)
-    {
-        *dest = ToLower(*src);
-    }
-
-    return start;
-}
-
-//------------------------------------------------------------------------------------------
-
-char ToLower(char letter)
-{
-    /* English */
-    if (letter >= 'A' && letter <= 'Z')
-    {
-        return letter + 'a' - 'A';
-    }
-
-    /* Russian */
-    // if (letter >= 'А' && letter <= 'Я')
-    // {
-    //     return letter + 'а' - 'А';
-    // }
-
-    return letter;
 }
 
 //------------------------------------------------------------------------------------------
