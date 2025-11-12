@@ -198,6 +198,9 @@ TreeErr_t AkinatorAddWord(Tree_t* tree, TreeNode_t* guess_node)
         return err;
     }
 
+    new_word_node->dynamic_memory = 1;
+    guess_node->dynamic_memory = 1;
+
     guess_node->data  = feature_data;
     guess_node->right = new_guessed_node;
     guess_node->left  = new_word_node;
@@ -512,7 +515,7 @@ TreeErr_t AkinatorReadData(Tree_t* tree, const char* data_file_path)
         return err;
     }
 
-    free(buffer);
+    tree->buffer = buffer;
 
     DEBUG_TREE_CHECK(tree, "ERROR AFTER AKINATOR READ DATA");
     TREE_CALL_DUMP  (tree, "DUMP AFTER AKINATOR READ DATA");
@@ -536,6 +539,7 @@ TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, int* pos)
     if (first_char == '(')
     {
         (*pos)++;
+        SkipSpaces(buffer, pos);
         TreeReadBufferDump(buffer, *pos, "BUFFER DUMP SKIPPING OPENING BRACKET");
 
         char* data = NULL;
@@ -549,8 +553,6 @@ TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, int* pos)
             return error;
 
         TREE_CALL_DUMP(tree, "DUMP AFTER NODE CTOR %s", data);
-
-        (*node)->dynamic_memory = 1;
 
         if ((error = ReadNode(tree, &(*node)->left,  buffer, pos)))
             return error;
@@ -592,31 +594,23 @@ TreeErr_t ReadNodeData(char* buffer, int* pos, char** node_data)
     assert(buffer    != NULL);
     assert(pos       != NULL);
 
-    char word[MAX_INPUT_LEN] = {};
-    int  data_len = 0;
+    int data_len = 0;
 
-    SkipSpaces(buffer, pos);
-
-    if (sscanf(&buffer[*pos], "\"%[^\"]\"%n", word, &data_len) != 1)
+    if (sscanf(&buffer[*pos], "\"%*[^\"]\"%n", &data_len) != 0)
     {
         PRINTERR("Error with reading data");
         return TREE_FILE_ERR;
     }
+
+    *node_data = buffer + *pos + 1;
+
     (*pos) += data_len;
+
+    buffer[*pos - 1] = '\0';
 
     SkipSpaces(buffer, pos);
 
-    DPRINTF("   word = %s;\n", word);
-
-    char* data = strdup(word);
-
-    if (data == NULL)
-    {
-        PRINTERR("Memory allocation failed");
-        return TREE_CALLOC_ERROR;
-    }
-
-    *node_data = data;
+    DPRINTF("   word = %s;\n", *node_data);
 
     return TREE_SUCCESS;
 }

@@ -65,12 +65,14 @@ TreeErr_t TreeReadBufferDump(const char* buffer, int pos, const char* fmt, ...)
     if ((error = TreeOpenLogFile(&fp, NULL, NULL)))
         return error;
 
-    fprintf(fp, "<pre><h4><font color=blue>");
+    fprintf(fp, "<pre><h4><font color=green>");
 
     vfprintf(fp, fmt, args);
 
     fprintf(fp, "</h4></font>\n"
                 "<font color=gray>");
+
+    fprintf(fp, "\"");
 
     for (int i = 0; i < pos; i++)
     {
@@ -83,6 +85,8 @@ TreeErr_t TreeReadBufferDump(const char* buffer, int pos, const char* fmt, ...)
     {
         fprintf(fp, "<font color=blue>%s</font>\n\n", buffer + pos + 1);
     }
+
+    fprintf(fp, "\"");
 
     fclose(fp);
 

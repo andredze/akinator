@@ -35,7 +35,8 @@ typedef struct TreeNode
 typedef struct Tree
 {
     TreeNode_t* dummy; // null (fake) element
-    size_t      size ;
+    size_t      size;
+    char*       buffer;
 } Tree_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————

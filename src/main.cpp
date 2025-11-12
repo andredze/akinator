@@ -88,11 +88,11 @@ int main()
         if (AkinatorReadData(&tree, "data/11112025_120911.txt")) // 11112025_154608.txt
             break;
 
-//         if (RunAkinator(&tree))
-//             break;
-//
-//         if (AkinatorWriteData(&tree))
-//             break;
+        if (RunAkinator(&tree))
+            break;
+
+        if (AkinatorWriteData(&tree))
+            break;
 
         // if (AkinatorDescribeWord(&tree, "Босс Борис"))
         //     break;

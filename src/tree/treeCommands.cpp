@@ -151,6 +151,8 @@ TreeErr_t TreeDtor(Tree_t* tree)
 {
     assert(tree != NULL);
 
+    free(tree->buffer);
+
     TreeErr_t error = TREE_SUCCESS;
 
     if ((error = TreeNodeDtor(tree->dummy)))
