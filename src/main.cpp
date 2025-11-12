@@ -13,7 +13,7 @@
 
         запись в файл с пробелами,
         проверка на отрицание в ответе пользователя
-        
+
         флаги пофиксить
 
         узнать про locale, langinfo
@@ -96,8 +96,8 @@ int main()
         if (AkinatorWriteData(&tree))
             break;
 
-        // if (AkinatorDescribeWord(&tree, "Босс Борис"))
-        //     break;
+        if (AkinatorDescribeWord(&tree, "Баязит Музик"))
+            break;
 
     } while (0);
 

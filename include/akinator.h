@@ -12,6 +12,14 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
+typedef struct Step
+{
+    char* word;
+    int   is_condition;
+} Step_t;
+
+//——————————————————————————————————————————————————————————————————————————————————————————
+
 TreeErr_t RunAkinator               (Tree_t* tree);
 TreeErr_t AkinatorExecuteProgramOnce(Tree_t* tree, int answer, int* user_active);
 TreeErr_t AkinatorNodeCtor          (Tree_t* tree, const char* word, TreeNode_t** node_ptr);
@@ -31,7 +39,7 @@ int       FeatureHasNegatives(char* feature);
 //——————————————————————————————————————————————————————————————————————————————————————————
 
 TreeErr_t AkinatorWriteData (const Tree_t* tree);
-TreeErr_t WriteNode         (const TreeNode_t* node, FILE* fp);
+void      WriteNode         (const TreeNode_t* node, FILE* fp);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
@@ -45,13 +53,18 @@ TreeErr_t ReadNodeData      (char* buffer, int* i, char** data);
 //——————————————————————————————————————————————————————————————————————————————————————————
 
 TreeErr_t AkinatorDescribeWord(Tree_t* tree, const char* word);
-int       DescribeWord        (TreeNode_t* node, const char* word);
+int       DescribeWord        (TreeNode_t* node, const char* word, Step_t* words_path, int* pos);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-TreeErr_t AkinatorGetDefinition (Tree_t* tree, const char* word);
-TreeErr_t GetNodeDefinition     (TreeNode_t* node, Stack_t* stack, const char* word, int* end_recursion);
-TreeErr_t PrintWordDefinition   (const char* word, Stack_t* stack);
+// TreeErr_t AkinatorGetDefinition (Tree_t* tree, const char* word);
+// TreeErr_t GetNodeDefinition     (TreeNode_t* node, Stack_t* stack, const char* word, int* end_recursion);
+// TreeErr_t PrintWordDefinition   (const char* word, Stack_t* stack);
+
+//——————————————————————————————————————————————————————————————————————————————————————————
+
+TreeErr_t PrintDescription (Step_t* words_path, int size);
+void      PrintCondition   (Step_t step, char end_symbol);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 

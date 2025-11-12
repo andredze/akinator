@@ -362,12 +362,7 @@ TreeErr_t AkinatorWriteData(const Tree_t* tree)
         return TREE_FILE_ERR;
     }
 
-    TreeErr_t err = TREE_SUCCESS;
-
-    if ((err = WriteNode(tree->dummy->right, fp)))
-    {
-        return err;
-    }
+    WriteNode(tree->dummy->right, fp);
 
     fclose(fp);
 
@@ -393,41 +388,21 @@ void MakeDataFilePath(char* data_file_path)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t WriteNode(const TreeNode_t* node, FILE* fp)
+void WriteNode(const TreeNode_t* node, FILE* fp)
 {
-    assert(node != NULL);
-
-    TreeErr_t err = TREE_SUCCESS;
-
-    fprintf(fp, "(\"%s\"", node->data);
-
-    if (node->left != NULL)
+    if (node == NULL)
     {
-        if ((err = WriteNode(node->left, fp)))
-        {
-            return err;
-        }
-    }
-    else
-    {
-        fprintf(fp, "nil");
+        fprintf(fp, "nil ");
+        return;
     }
 
-    if (node->right != NULL)
-    {
-        if ((err = WriteNode(node->right, fp)))
-        {
-            return err;
-        }
-    }
-    else
-    {
-        fprintf(fp, "nil");
-    }
+    fprintf(fp, "( \"%s\" ", node->data);
 
-    fprintf(fp, ")");
+    WriteNode(node->left, fp);
 
-    return TREE_SUCCESS;
+    WriteNode(node->right, fp);
+
+    fprintf(fp, " )");
 }
 
 //------------------------------------------------------------------------------------------
@@ -660,37 +635,53 @@ TreeErr_t AkinatorDescribeWord(Tree_t* tree, const char* word)
 
     DEBUG_TREE_CHECK(tree, "ERROR BEFORE AKINATOR GET DEFINITION");
 
-    if (DescribeWord(tree->dummy->right, word) == -1)
+    Step_t* words_path = (Step_t*) calloc(tree->size, sizeof(Step_t));
+
+    if (words_path == NULL)
+    {
+        PRINTERR("Memory allocation failed");
+        return TREE_CALLOC_ERROR;
+    }
+
+    int pos = 0;
+
+    if (DescribeWord(tree->dummy->right, word, words_path, &pos) == -1)
     {
         return TREE_NULL_NODE;
     }
-    printf("\n");
+
+    PrintDescription(words_path, pos);
+
+    free(words_path);
 
     return TREE_SUCCESS;
 }
 
 //------------------------------------------------------------------------------------------
 
-int DescribeWord(TreeNode_t* node, const char* word)
+int DescribeWord(TreeNode_t* node, const char* word, Step_t* words_path, int* pos)
 {
     if (node == NULL)
     {
         return 0;
     }
 
+    if (DescribeWord(node->left, word, words_path, pos) == 1)
+    {
+        words_path[*pos] = {.word = node->data, .is_condition = 1};
+        (*pos)++;
+        return 1;
+    }
+    if (DescribeWord(node->right, word, words_path, pos) == 1)
+    {
+        words_path[*pos] = {.word = node->data, .is_condition = 0};
+        (*pos)++;
+        return 1;
+    }
     if (strcmp(node->data, word) == 0)
     {
-        printf("%s ", node->data);
-        return 1;
-    }
-    if (DescribeWord(node->left, word) == 1)
-    {
-        printf("%s ", node->data);
-        return 1;
-    }
-    if (DescribeWord(node->right, word) == 1)
-    {
-        printf("не %s ", node->data);
+        words_path[*pos] = {.word = node->data, .is_condition = 1};
+        (*pos)++;
         return 1;
     }
 
@@ -698,7 +689,41 @@ int DescribeWord(TreeNode_t* node, const char* word)
 }
 
 //------------------------------------------------------------------------------------------
-//
+
+TreeErr_t PrintDescription(Step_t* words_path, int size)
+{
+    assert(words_path != NULL);
+
+    printf("Определение %s: ", words_path[0].word);
+
+    for (int cur_pos = 0; cur_pos < size - 1; cur_pos++)
+    {
+        PrintCondition(words_path[cur_pos], ' ');
+    }
+
+    printf("и ");
+    PrintCondition(words_path[size - 1], '.');
+    printf("\n");
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+void PrintCondition(Step_t step, char end_symbol)
+{
+    if (step.is_condition == 1)
+    {
+        printf("%s%c", step.word, end_symbol);
+    }
+    else
+    {
+        printf("не %s%c", step.word, end_symbol);
+    }
+}
+
+//------------------------------------------------------------------------------------------
+
 // TreeErr_t AkinatorGetDefinition(Tree_t* tree, const char* word)
 // {
 //     assert(word != NULL);
