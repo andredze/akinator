@@ -26,7 +26,7 @@ TreeErr_t TreeReadData(Tree_t* tree, const char* data_file_path)
     }
 
     TreeErr_t err = TREE_SUCCESS;
-    int i = 0;
+    long int i = 0;
 
     if ((err = ReadNode(tree, &tree->dummy->right, buffer, &i)))
     {
@@ -43,7 +43,7 @@ TreeErr_t TreeReadData(Tree_t* tree, const char* data_file_path)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, int* pos)
+TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, long int* pos)
 {
     assert(buffer != NULL);
     assert(tree   != NULL);
@@ -104,7 +104,7 @@ TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, int* pos)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t ReadNodeData(char* buffer, int* pos, char** node_data)
+TreeErr_t ReadNodeData(char* buffer, long int* pos, char** node_data)
 {
     assert(node_data != NULL);
     assert(buffer    != NULL);
@@ -133,7 +133,7 @@ TreeErr_t ReadNodeData(char* buffer, int* pos, char** node_data)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t ReadNodeDataStrChr(char* buffer, int* pos, char** node_data)
+TreeErr_t ReadNodeDataStrChr(char* buffer, long int* pos, char** node_data)
 {
     assert(node_data != NULL);
     assert(buffer    != NULL);
@@ -170,7 +170,7 @@ TreeErr_t ReadNodeDataStrChr(char* buffer, int* pos, char** node_data)
 
 //------------------------------------------------------------------------------------------
 
-void SkipSpaces(char* buffer, int* pos)
+void SkipSpaces(char* buffer, long int* pos)
 {
     assert(buffer != NULL);
     assert(pos    != NULL);
@@ -185,7 +185,7 @@ void SkipSpaces(char* buffer, int* pos)
 
 //------------------------------------------------------------------------------------------
 
-int SkipLetter(char* buffer, int* pos, char letter)
+int SkipLetter(char* buffer, long int* pos, char letter)
 {
     assert(buffer != NULL);
     assert(pos    != NULL);
@@ -250,7 +250,7 @@ int CountSize(const char* file_path, size_t* size)
         return 1;
     }
 
-    *size = fileinfo.st_size + 1;
+    *size = (size_t) fileinfo.st_size + 1;
 
     return 0;
 }

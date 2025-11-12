@@ -11,7 +11,7 @@
 //——————————————————————————————————————————————————————————————————————————————————————————
 
 TreeErr_t TreeReadBufferDump(const char* buffer,
-                             int pos,
+                             long int pos,
                              const char* fmt, ...);
 
 TreeErr_t TreeDump(const Tree_t*         tree,

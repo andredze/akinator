@@ -16,7 +16,7 @@ int SetDirectories(char* log_filename, char* log_dir)
     static char image_dir [MAX_FILENAME_LEN] = "";
     static char dot_dir   [MAX_FILENAME_LEN] = "";
 
-    strftime(time_dir, sizeof(time_dir), "%d%m%Y_%H%M%S", info);
+    strftime(time_dir, sizeof(time_dir), "%Y-%m-%d_%H:%M:%S", info);
 
     snprintf(log_dir, MAX_FILENAME_LEN, "log/%s", time_dir);
     mkdir(log_dir, 0777);
@@ -52,7 +52,7 @@ TreeErr_t TreeDump(const Tree_t*         tree,
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeReadBufferDump(const char* buffer, int pos, const char* fmt, ...)
+TreeErr_t TreeReadBufferDump(const char* buffer, long int pos, const char* fmt, ...)
 {
     assert(fmt != NULL);
 

@@ -36,7 +36,7 @@ void MakeDataFilePath(char* data_file_path)
 
     char time[MAX_TIME_LEN] = "";
 
-    strftime(time, sizeof(time), "%d%m%Y_%H%M%S", info);
+    strftime(time, sizeof(time), "data_%d-%b-%Y_%H-%M-%S", info);
 
     snprintf(data_file_path, MAX_FILE_NAME_LEN, "data/%s.txt", time);
 }
