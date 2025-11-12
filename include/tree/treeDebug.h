@@ -24,24 +24,26 @@ TreeErr_t vTreeDump(const Tree_t*         tree,
 
 TreeErr_t TreeOpenLogFile(FILE** fp_ptr, int* calls_count_ptr, char* dest_log_dir);
 
-TreeErr_t TreeGraphDump       (const Tree_t* tree,
-                               const char* image_name,
-                               const char* dot_dir);
+TreeErr_t TreeGraphDump(const Tree_t* tree,
+                        const char* image_name,
+                        const char* dot_dir);
 
 void SetGraphFilepaths(char*       dot_file_path,
                        char*       svg_file_path,
                        const char* log_dir,
                        const char* graph_name);
 
-void DumpGraphTitle           (FILE* dot_file);
-
 TreeErr_t TreeConvertGraphFile(const char* dot_file_path,
                                const char* svg_file_path);
 
+void      DumpGraphTitle      (FILE* dot_file);
 void      TreeNodePrint       (const TreeNode_t* node          );
 TreeErr_t TreeNodeDump        (const TreeNode_t* node, FILE* fp);
 TreeErr_t TreeSingleNodeDump  (const TreeNode_t* node, FILE* fp);
 int       MakeTreeEdges       (const TreeNode_t* node, FILE* fp);
+int       SetDirectories      (char* log_filename, char* log_dir);
+
+//——————————————————————————————————————————————————————————————————————————————————————————
 
 int MakeTreeDefaultNode(
     const TreeNode_t* node,
@@ -50,10 +52,6 @@ int MakeTreeDefaultNode(
     const char* fontcolor,
     const char* shape,
     FILE* fp);
-
-int SetDirectories(char* log_filename, char* log_dir);
-
-//——————————————————————————————————————————————————————————————————————————————————————————
 
 int MakeNode(
     const char* name,

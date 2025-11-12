@@ -1,17 +1,19 @@
 #include "akinator.h"
+#include "data_access.h"
 #include <locale.h>
 #include <langinfo.h>
 
 //------------------------------------------------------------------------------------------
 
 /* TODO:
-        определение запоминать путь,
+        выбор команд в мейне
+        -определение запоминать путь,
         сравнение,
 
-        чтение + менять " на \0 + пробелы допустимы + дамп с серым, красным, синим + оптимизировать алгоритм
+        -чтение + менять " на \0 + пробелы допустимы + дамп с серым, красным, синим + оптимизировать алгоритм
         указатели на буфер вместо strdup
 
-        запись в файл с пробелами,
+        -запись в файл с пробелами,
         проверка на отрицание в ответе пользователя
 
         флаги пофиксить
@@ -19,7 +21,8 @@
         узнать про locale, langinfo
         mkdir, clock_t, trdsc, как меняется кодировка, как происходит запись букв в UTF-8 и как их сравнивать, выводить в консоль
 
-        sscanf с %* и strchr
+        -sscanf с %* и
+        strchr
         свой принтф со спецификатором %#640000 и vsprintf
         гугл тесты для сорт. дерева
 
@@ -78,7 +81,7 @@ int main()
     //     return EXIT_FAILURE;
     // }
     // printf("Current codeset: %s\n", setlocale(LC_ALL, NULL));
-
+    // nl_langinfo(CODESET)
     Tree_t tree = {};
 
     do {
@@ -87,18 +90,23 @@ int main()
         if (TreeCtor(&tree))
             break;
 
-        if (AkinatorReadData(&tree, "data/11112025_120911.txt")) // 11112025_154608.txt
+        if (TreeReadData(&tree, "data/12112025_225327.txt")) // 11112025_154608.txt
             break;
 
-        if (RunAkinator(&tree))
-            break;
-
-        if (AkinatorWriteData(&tree))
+        if (AkinatorDescribeWord(&tree, "Босс Борис"))
             break;
 
         if (AkinatorDescribeWord(&tree, "Баязит Музик"))
             break;
 
+        if (AkinatorCompareWords(&tree, "Босс Борис", "Баязит Музик"))
+            break;
+
+        if (RunAkinator(&tree))
+            break;
+
+        if (TreeWriteData(&tree))
+            break;
     } while (0);
 
     TreeDtor(&tree);

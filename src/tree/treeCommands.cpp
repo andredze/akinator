@@ -97,56 +97,6 @@ TreeErr_t TreeNodeCtor(Tree_t* tree, TreeElem_t data, TreeNode_t** new_node)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeInsert(Tree_t* tree, TreeElem_t data)
-{
-    DEBUG_TREE_CHECK(tree, "ERROR DUMP TREE BEFORE INSERT data = " TREE_SPEC, data);
-
-    TreeNode_t* node     = tree->dummy;
-    TreeNode_t* new_node = NULL;
-
-    TreeErr_t   error    = TREE_SUCCESS;
-
-    if ((error = TreeNodeCtor(tree, data, &new_node)))
-    {
-        return error;
-    }
-
-    char answer[1000] = {};
-
-    while (node != NULL)
-    {
-        printf("Does your character %s? (y/n): ", node->data);
-        scanf("%s", answer);
-
-        if (strcmp(answer, "y") == 0)
-        {
-            if (node->left == NULL)
-            {
-                node->left = new_node;
-                break;
-            }
-            node = node->left;
-        }
-        else if (strcmp(answer, "n") == 0)
-        {
-            if (node->right == NULL)
-            {
-                node->right = new_node;
-                break;
-            }
-            node = node->right;
-        }
-    }
-
-    DEBUG_TREE_CHECK(tree, "ERROR DUMP TREE AFTER INSERT data = " TREE_SPEC " to %p", data, new_node);
-
-    TREE_CALL_DUMP(tree, "DUMP TREE AFTER INSERT data = " TREE_SPEC " to %p", data, new_node);
-
-    return TREE_SUCCESS;
-}
-
-//------------------------------------------------------------------------------------------
-
 TreeErr_t TreeDtor(Tree_t* tree)
 {
     assert(tree != NULL);
