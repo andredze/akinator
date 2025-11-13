@@ -23,12 +23,21 @@ const TreeElem_t TREE_POISON = NULL;
 
 typedef struct TreeNode
 {
-    TreeElem_t       data ;
-    struct TreeNode* left ;
+    TreeElem_t       data;
+    struct TreeNode* left;
     struct TreeNode* right;
+    struct TreeNode* parent;
 
     int dynamic_memory;
 } TreeNode_t;
+
+//——————————————————————————————————————————————————————————————————————————————————————————
+
+typedef struct TreeStep
+{
+    TreeNode_t* node;
+    char connection;
+} TreeStep_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
@@ -43,20 +52,20 @@ typedef struct Tree
 
 typedef enum TreeErr
 {
-    TREE_SUCCESS = 0,
-    TREE_NULL,
-    TREE_NULL_NODE,
-    TREE_NULL_DUMMY,
-    TREE_SIZE_EXCEEDS_MAX,
-    TREE_LOOP,
+    TREE_SUCCESS           = 0,
+    TREE_NULL              = 1,
+    TREE_NULL_NODE         = 2,
+    TREE_NULL_DUMMY        = 3,
+    TREE_SIZE_EXCEEDS_MAX  = 4,
+    TREE_LOOP              = 5,
 
-    TREE_CALLOC_ERROR,
-    TREE_DUMP_ERROR,
-    TREE_SYSTEM_FUNC_ERR,
-    TREE_FILE_ERR,
-    TREE_STACK_ERR,
+    TREE_CALLOC_ERROR      = 6,
+    TREE_DUMP_ERROR        = 7,
+    TREE_SYSTEM_FUNC_ERR   = 8,
+    TREE_FILE_ERR          = 9,
+    TREE_STACK_ERR         = 10,
 
-    TREE_INVALID_INPUT
+    TREE_INVALID_INPUT     = 11
 } TreeErr_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————

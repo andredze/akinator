@@ -11,7 +11,7 @@ TreeErr_t RunAkinator(Tree_t* tree)
     if (tree->dummy->right == NULL)
     {
         /* Make empty word for easier program usage */
-        if ((err = AkinatorNodeCtor(tree, EMPTY_WORD, &tree->dummy->right)))
+        if ((err = AkinatorNodeCtor(tree, EMPTY_WORD, &tree->dummy->right, tree->dummy)))
         {
             return err;
         }
@@ -73,7 +73,7 @@ TreeErr_t AkinatorExecuteProgramOnce(Tree_t* tree, int answer, int* user_active)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t AkinatorNodeCtor(Tree_t* tree, const char* word, TreeNode_t** node_ptr)
+TreeErr_t AkinatorNodeCtor(Tree_t* tree, const char* word, TreeNode_t** node_ptr, TreeNode_t* parent)
 {
     assert(tree != NULL);
 
@@ -86,7 +86,7 @@ TreeErr_t AkinatorNodeCtor(Tree_t* tree, const char* word, TreeNode_t** node_ptr
 
     (*node_ptr)->dynamic_memory = 1;
 
-    return TreeNodeCtor(tree, data, node_ptr);
+    return TreeNodeCtor(tree, data, node_ptr, parent);
 }
 
 //------------------------------------------------------------------------------------------

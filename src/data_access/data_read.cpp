@@ -28,7 +28,7 @@ TreeErr_t TreeReadData(Tree_t* tree, const char* data_file_path)
     TreeErr_t err = TREE_SUCCESS;
     long int i = 0;
 
-    if ((err = ReadNode(tree, &tree->dummy->right, buffer, &i)))
+    if ((err = ReadNode(tree, &tree->dummy->right, buffer, &i, tree->dummy)))
     {
         return err;
     }
@@ -43,7 +43,7 @@ TreeErr_t TreeReadData(Tree_t* tree, const char* data_file_path)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, long int* pos)
+TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, long int* pos, TreeNode_t* parent)
 {
     assert(buffer != NULL);
     assert(tree   != NULL);
@@ -65,17 +65,17 @@ TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, long int* pos)
 
         TreeReadBufferDump(buffer, *pos, "BUFFER DUMP AFTER READING %s", data);
 
-        if ((error = TreeNodeCtor(tree, data, node)))
+        if ((error = TreeNodeCtor(tree, data, node, parent)))
             return error;
 
         TREE_CALL_DUMP(tree, "DUMP AFTER NODE CTOR %s", data);
 
-        if ((error = ReadNode(tree, &(*node)->left,  buffer, pos)))
+        if ((error = ReadNode(tree, &(*node)->left,  buffer, pos, *node)))
             return error;
 
         TreeReadBufferDump(buffer, *pos, "BUFFER DUMP AFTER READING NODE LEFT TO %s", data);
 
-        if ((error = ReadNode(tree, &(*node)->right, buffer, pos)))
+        if ((error = ReadNode(tree, &(*node)->right, buffer, pos, *node)))
             return error;
 
         TreeReadBufferDump(buffer, *pos, "BUFFER DUMP AFTER READING NODE RIGHT TO %s", data);

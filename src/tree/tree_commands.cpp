@@ -49,7 +49,7 @@ TreeErr_t TreeCtor(Tree_t* tree)
     TreeNode_t* dummy = NULL;
     TreeErr_t   error = TREE_SUCCESS;
 
-    if ((error = TreeNodeCtor(tree, TREE_POISON, &dummy)))
+    if ((error = TreeNodeCtor(tree, TREE_POISON, &dummy, NULL)))
     {
         return error;
     }
@@ -68,7 +68,7 @@ TreeErr_t TreeCtor(Tree_t* tree)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeNodeCtor(Tree_t* tree, TreeElem_t data, TreeNode_t** new_node)
+TreeErr_t TreeNodeCtor(Tree_t* tree, TreeElem_t data, TreeNode_t** new_node, TreeNode_t* parent)
 {
     if (new_node == NULL)
     {
@@ -84,9 +84,10 @@ TreeErr_t TreeNodeCtor(Tree_t* tree, TreeElem_t data, TreeNode_t** new_node)
         return TREE_CALLOC_ERROR;
     }
 
-    node->left  = NULL;
-    node->right = NULL;
-    node->data  = data;
+    node->left   = NULL;
+    node->right  = NULL;
+    node->parent = parent;
+    node->data   = data;
 
     tree->size++;
 
@@ -203,9 +204,10 @@ TreeErr_t TreeSingleNodeDtor(TreeNode_t* node)
         free(node->data);
     }
 
-    node->data  = TREE_POISON;
-    node->left  = NULL;
-    node->right = NULL;
+    node->data   = TREE_POISON;
+    node->left   = NULL;
+    node->right  = NULL;
+    node->parent = NULL;
 
     free(node);
 

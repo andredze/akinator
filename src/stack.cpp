@@ -1,5 +1,7 @@
 #include "stack.h"
 
+//------------------------------------------------------------------------------------------
+
 StackErr_t StackCtor(Stack_t* stack, size_t capacity)
 {
     if (stack == NULL)
@@ -57,6 +59,8 @@ StackErr_t StackCtor(Stack_t* stack, size_t capacity)
     return STACK_SUCCESS;
 }
 
+//------------------------------------------------------------------------------------------
+
 StackErr_t StackReallocUp(Stack_t* stack)
 {
     STACK_OK(stack, reason_start);
@@ -102,6 +106,8 @@ StackErr_t StackReallocUp(Stack_t* stack)
     return STACK_SUCCESS;
 }
 
+//------------------------------------------------------------------------------------------
+
 StackErr_t StackReallocDown(Stack_t* stack)
 {
     STACK_OK(stack, reason_start);
@@ -134,6 +140,8 @@ StackErr_t StackReallocDown(Stack_t* stack)
     return STACK_SUCCESS;
 }
 
+//------------------------------------------------------------------------------------------
+
 StackErr_t StackPush(Stack_t* stack, item_t item)
 {
     STACK_OK(stack, reason_start);
@@ -162,6 +170,8 @@ StackErr_t StackPush(Stack_t* stack, item_t item)
 
     return STACK_SUCCESS;
 }
+
+//------------------------------------------------------------------------------------------
 
 StackErr_t StackPop(Stack_t* stack, item_t* item)
 {
@@ -198,6 +208,8 @@ StackErr_t StackPop(Stack_t* stack, item_t* item)
     return STACK_SUCCESS;
 }
 
+//------------------------------------------------------------------------------------------
+
 StackErr_t StackDtor(Stack_t* stack)
 {
     if (stack == NULL)
@@ -216,6 +228,8 @@ StackErr_t StackDtor(Stack_t* stack)
 
     return STACK_SUCCESS;
 }
+
+//------------------------------------------------------------------------------------------
 
 #ifdef STACK_DEBUG
 StackErr_t StackIsOk(Stack_t* stack,
@@ -244,6 +258,8 @@ StackErr_t StackIsOk(Stack_t* stack,
 
     return error;
 }
+
+//------------------------------------------------------------------------------------------
 
 int StackErrToStr(StackErr_t error, const char** line)
 {
@@ -294,6 +310,8 @@ int StackErrToStr(StackErr_t error, const char** line)
 
     return 1;
 }
+
+//------------------------------------------------------------------------------------------
 
 StackErr_t StackDump(Stack_t* stack, StackErr_t error,
                      const char* reason_of_calling)
@@ -410,6 +428,8 @@ StackErr_t StackDump(Stack_t* stack, StackErr_t error,
     return STACK_SUCCESS;
 }
 
+//------------------------------------------------------------------------------------------
+
 StackErr_t StackVerify(Stack_t* stack)
 {
     if (stack == NULL)
@@ -455,6 +475,8 @@ StackErr_t StackVerify(Stack_t* stack)
 }
 #endif /* STACK_DEBUG */
 
+//------------------------------------------------------------------------------------------
+
 #ifdef CANARY
 StackErr_t StackCheckCanaries(Stack_t* stack)
 {
@@ -476,6 +498,8 @@ StackErr_t StackCheckCanaries(Stack_t* stack)
 }
 #endif /* CANARY */
 
+//------------------------------------------------------------------------------------------
+
 #ifdef HASH
 StackErr_t StackCheckHash(Stack_t* stack)
 {
@@ -491,6 +515,8 @@ StackErr_t StackCheckHash(Stack_t* stack)
     return STACK_SUCCESS;
 }
 #endif /* HASH */
+
+//------------------------------------------------------------------------------------------
 
 #ifdef HASH
 // djb2
@@ -515,6 +541,8 @@ size_t StackHash(Stack_t* stack)
     return hash;
 }
 #endif /* HASH */
+
+//------------------------------------------------------------------------------------------
 
 #ifdef STACK_DEBUG
 
@@ -572,3 +600,5 @@ StackErr_t StackPrint(Stack_t* stack)
     return STACK_SUCCESS;
 }
 #endif
+
+//------------------------------------------------------------------------------------------

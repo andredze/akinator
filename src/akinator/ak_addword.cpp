@@ -10,32 +10,32 @@ TreeErr_t AkinatorAddWord(Tree_t* tree, TreeNode_t* guess_node)
     TreeErr_t err = TREE_SUCCESS;
 
     char* new_word_data = NULL;
-    char* feature_data  = NULL;
+    char* condition_data  = NULL;
 
     if ((err = AkinatorGetNewWord(&new_word_data)))
     {
         return err;
     }
 
-    int re_input_feature = 1;
+    int re_input_condition = 1;
 
-    while (re_input_feature)
+    while (re_input_condition)
     {
-        if ((err = AkinatorGetFeature(&feature_data, guess_node->data, new_word_data)))
+        if ((err = AkinatorGetCondition(&condition_data, guess_node->data, new_word_data)))
         {
             return err;
         }
-        re_input_feature = FeatureHasNegatives(feature_data);
+        re_input_condition = ConditionHasNegatives(condition_data);
     }
 
     TreeNode_t* new_word_node    = NULL;
     TreeNode_t* new_guessed_node = NULL;
 
-    if ((err = TreeNodeCtor(tree, new_word_data, &new_word_node)))
+    if ((err = TreeNodeCtor(tree, new_word_data, &new_word_node, guess_node)))
     {
         return err;
     }
-    if ((err = TreeNodeCtor(tree, guess_node->data, &new_guessed_node)))
+    if ((err = TreeNodeCtor(tree, guess_node->data, &new_guessed_node, guess_node)))
     {
         return err;
     }
@@ -43,7 +43,7 @@ TreeErr_t AkinatorAddWord(Tree_t* tree, TreeNode_t* guess_node)
     new_word_node->dynamic_memory = 1;
     guess_node->dynamic_memory = 1;
 
-    guess_node->data  = feature_data;
+    guess_node->data  = condition_data;
     guess_node->right = new_guessed_node;
     guess_node->left  = new_word_node;
 
@@ -86,18 +86,18 @@ TreeErr_t AkinatorGetNewWord(char** new_word_data)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t AkinatorGetFeature(char** feature_data, const char* guess_word, const char* new_word)
+TreeErr_t AkinatorGetCondition(char** condition_data, const char* guess_word, const char* new_word)
 {
-    assert(feature_data != NULL);
+    assert(condition_data != NULL);
     assert(guess_word   != NULL);
     assert(new_word     != NULL);
 
-    char feature_buf[MAX_INPUT_LEN] = "";
-    int  feature_len = 0;
+    char condition_buf[MAX_INPUT_LEN] = "";
+    int  condition_len = 0;
 
     printf("В отличие от %s %s ", guess_word, new_word);
 
-    if (scanf("%1023[^\n]%n", feature_buf, &feature_len) != 1)
+    if (scanf("%1023[^\n]%n", condition_buf, &condition_len) != 1)
     {
         PRINTERR("Input error");
         return TREE_INVALID_INPUT;
@@ -105,29 +105,29 @@ TreeErr_t AkinatorGetFeature(char** feature_data, const char* guess_word, const 
 
     CleanBuffer();
 
-    char* feature = strdup(feature_buf);
+    char* condition = strdup(condition_buf);
 
-    if (feature == NULL)
+    if (condition == NULL)
     {
         return TREE_CALLOC_ERROR;
     }
 
-    *feature_data = feature;
+    *condition_data = condition;
 
     return TREE_SUCCESS;
 }
 
 //------------------------------------------------------------------------------------------
 
-int FeatureHasNegatives(char* feature)
+int ConditionHasNegatives(char* condition)
 {
-    assert(feature != NULL);
+    assert(condition != NULL);
 
 // TODO: внутри слова можно не
 
-    if (strstr(feature, "не ") != NULL || strstr(feature, " не ") != NULL)
+    if (strstr(condition, "не ") != NULL || strstr(condition, " не ") != NULL)
     {
-        free(feature);
+        free(condition);
         return 1;
     }
 

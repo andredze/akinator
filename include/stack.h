@@ -99,14 +99,14 @@
 const size_t STACK_SIZE_LIMIT   = SIZE_MAX / 32 * 30;
 const size_t STACK_MIN_CAPACITY = 32;
 
-const int         POISON_INT = 0xDEBABA;
-TreeNode_t* const POISON_PTR = NULL;
+const int        POISON_INT = 0xDEBABA;
+const TreeStep_t POISON_STR = {NULL, '\0'};
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-typedef TreeNode_t* item_t;
+typedef TreeStep_t item_t;
 
-const item_t POISON = POISON_PTR;
+const item_t POISON = POISON_STR;
 
 #define STACK_SPEC "%p"
 

@@ -10,7 +10,7 @@
 
 void      WriteNode         (const TreeNode_t* node, FILE* fp, int rank);
 
-TreeErr_t ReadNode          (Tree_t* tree, TreeNode_t** node, char* buffer, long int* pos);
+TreeErr_t ReadNode          (Tree_t* tree, TreeNode_t** node, char* buffer, long int* pos, TreeNode_t* parent);
 TreeErr_t ReadNodeData      (char* buffer, long int* pos, char** node_data);
 TreeErr_t ReadNodeDataStrChr(char* buffer, long int* pos, char** node_data);
 
