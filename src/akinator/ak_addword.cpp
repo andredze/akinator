@@ -48,7 +48,7 @@ TreeErr_t AkinatorAddWord(Tree_t* tree, TreeNode_t* guess_node)
     guess_node->left  = new_word_node;
 
     DEBUG_TREE_CHECK(tree, "ERROR DUMP AKINATOR ADD WORD");
-    TREE_CALL_DUMP  (tree, "DUMP AFTER AKINATOR ADD WORD");
+    TREE_CALL_DUMP  (tree, "DUMP AFTER AKINATOR ADD WORD %s", new_word_node->data);
 
     return TREE_SUCCESS;
 }

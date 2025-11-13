@@ -36,7 +36,7 @@ TreeErr_t TreeReadData(Tree_t* tree, const char* data_file_path)
     tree->buffer = buffer;
 
     DEBUG_TREE_CHECK(tree, "ERROR AFTER TREE READ DATA");
-    TREE_CALL_DUMP  (tree, "DUMP AFTER TREE READ DATA");
+    TREE_CALL_DUMP  (tree, "DUMP AFTER TREE READ DATA %s", data_file_path);
 
     return TREE_SUCCESS;
 }
