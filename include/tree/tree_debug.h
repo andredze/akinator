@@ -3,7 +3,7 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-#include "treeTypes.h"
+#include "tree_types.h"
 #include <time.h>
 #include <sys/stat.h>
 #include <stdarg.h>

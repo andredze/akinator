@@ -3,11 +3,11 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-#include "treeTypes.h"
+#include "tree_types.h"
 #include <stdarg.h>
 
 #ifdef TREE_DEBUG
-    #include "treeDebug.h"
+    #include "tree_debug.h"
 #endif /* TREE_DEBUG */
 
 //——————————————————————————————————————————————————————————————————————————————————————————

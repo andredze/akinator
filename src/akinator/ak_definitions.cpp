@@ -57,9 +57,7 @@ void PrintComparison(Step_t* path1, Step_t* path2, int size1, int size2)
 
     printf(BLUE "Сравнение %s и %s:\n" RESET_CLR, path1[0].word, path2[0].word);
 
-    printf("%s похож на %s тем, что\n", path1[0].word, path2[0].word);
-
-    printf("они оба ");
+    printf("%s, как и %s ", path1[0].word, path2[0].word);
 
     PrintConditionsInReverse(path1, size1 - 1, pos1);
 

@@ -1,6 +1,6 @@
 #include <locale.h>
 #include <langinfo.h>
-#include "treeCommands.h"
+#include "tree_commands.h"
 
 //------------------------------------------------------------------------------------------
 

@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "treeTypes.h"
+#include "tree_types.h"
 
 #ifndef STACK_DEBUG
     #define NDEBUG

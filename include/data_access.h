@@ -3,12 +3,12 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-#include "treeCommands.h"
+#include "tree_commands.h"
 #include <ctype.h>
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-void      WriteNode         (const TreeNode_t* node, FILE* fp);
+void      WriteNode         (const TreeNode_t* node, FILE* fp, int rank);
 
 TreeErr_t ReadNode          (Tree_t* tree, TreeNode_t** node, char* buffer, long int* pos);
 TreeErr_t ReadNodeData      (char* buffer, long int* pos, char** node_data);

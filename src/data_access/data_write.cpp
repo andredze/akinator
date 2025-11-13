@@ -17,7 +17,7 @@ TreeErr_t TreeWriteData(const Tree_t* tree)
         return TREE_FILE_ERR;
     }
 
-    WriteNode(tree->dummy->right, fp);
+    WriteNode(tree->dummy->right, fp, 0);
 
     fclose(fp);
 
@@ -43,23 +43,43 @@ void MakeDataFilePath(char* data_file_path)
 
 //------------------------------------------------------------------------------------------
 
-void WriteNode(const TreeNode_t* node, FILE* fp)
+void WriteNode(const TreeNode_t* node, FILE* fp, int rank)
 {
     assert(fp != NULL);
 
     if (node == NULL)
     {
-        fprintf(fp, "nil ");
+        fprintf(fp, " nil");
         return;
     }
+    for (int i = 0; i < rank; i++)
+    {
+        fprintf(fp, "\t");
+    }
 
-    fprintf(fp, "( \"%s\" ", node->data);
+    fprintf(fp, "( \"%s\"", node->data);
 
-    WriteNode(node->left, fp);
+    if (node->left != NULL)
+    {
+        fprintf(fp, "\n");
+    }
 
-    WriteNode(node->right, fp);
+    WriteNode(node->left, fp, rank + 1);
 
-    fprintf(fp, " )");
+    WriteNode(node->right, fp, rank + 1);
+
+    if (node->left != NULL)
+    {
+        for (int i = 0; i < rank; i++)
+        {
+            fprintf(fp, "\t");
+        }
+    }
+    else
+    {
+        fprintf(fp, " ");
+    }
+    fprintf(fp, ")\n");
 }
 
 //------------------------------------------------------------------------------------------

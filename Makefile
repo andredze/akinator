@@ -23,12 +23,12 @@ SOURCES = src/main.cpp \
 		  src/akinator/ak_guess.cpp \
 		  src/data_access/data_read.cpp \
 		  src/data_access/data_write.cpp \
-		  src/tree/treeCommands.cpp \
+		  src/tree/tree_commands.cpp \
 		  src/stack.cpp
 
 ifdef DEBUG
 CXXFLAGS += -D TREE_DEBUG
-SOURCES  += src/tree/treeDebug.cpp
+SOURCES  += src/tree/tree_debug.cpp
 endif
 
 EXECUTABLE = run
