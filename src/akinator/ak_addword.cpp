@@ -9,8 +9,8 @@ TreeErr_t AkinatorAddWord(Tree_t* tree, TreeNode_t* guess_node)
 
     TreeErr_t err = TREE_SUCCESS;
 
-    char* new_word_data = NULL;
-    char* condition_data  = NULL;
+    char* new_word_data  = NULL;
+    char* condition_data = NULL;
 
     if ((err = AkinatorGetNewWord(&new_word_data)))
     {

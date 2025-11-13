@@ -61,14 +61,14 @@ TreeErr_t AkinatorCompareWords(Tree_t* tree, const char* word1, const char* word
     TreeNode_t* node1 = TreeSearch(tree->dummy->right, word1);
     if (node1 == NULL)
     {
-        printf(BLUE "Такого слова нет!\n\n" RESET_CLR);
+        printf(BLUE "Слова %s нет в базе!\n" RESET_CLR, word1);
         return TREE_SUCCESS;
     }
 
     TreeNode_t* node2 = TreeSearch(tree->dummy->right, word2);
     if (node2 == NULL)
     {
-        printf(BLUE "Такого слова нет!\n" RESET_CLR);
+        printf(BLUE "Слова %s нет в базе!\n" RESET_CLR, word2);
         return TREE_SUCCESS;
     }
 
@@ -77,12 +77,30 @@ TreeErr_t AkinatorCompareWords(Tree_t* tree, const char* word1, const char* word
         return error;
     }
 
+    PrintComparison(word1, word2, &stack1, &stack2, &common_stack);
+
+    DestroyComparisonStacks(&stack1, &stack2, &common_stack);
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+void PrintComparison(const char* word1, const char* word2,
+                     Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack)
+{
+    assert(word1        != NULL);
+    assert(word2        != NULL);
+    assert(stack1       != NULL);
+    assert(stack2       != NULL);
+    assert(common_stack != NULL);
+
     printf(BLUE "Сравнение %s и %s:\n" RESET_CLR, word1, word2);
 
-    if (common_stack.size > 0)
+    if (common_stack->size > 0)
     {
         printf(" %s, как и %s ", word1, word2);
-        PrintStackWordPath(&common_stack);
+        PrintStackWordPath(common_stack);
     }
     else
     {
@@ -91,19 +109,13 @@ TreeErr_t AkinatorCompareWords(Tree_t* tree, const char* word1, const char* word
 
     printf(" но %s ", word1);
 
-    PrintStackWordPath(&stack1);
+    PrintStackWordPath(stack1);
 
     printf(" a %s ", word2);
 
-    PrintStackWordPath(&stack2);
+    PrintStackWordPath(stack2);
 
     printf("\n");
-
-    StackDtor(&common_stack);
-    StackDtor(&stack1);
-    StackDtor(&stack2);
-
-    return TREE_SUCCESS;
 }
 
 //------------------------------------------------------------------------------------------
@@ -116,6 +128,37 @@ TreeErr_t GetComparisonStacks(Stack_t* stack1, Stack_t* stack2, Stack_t* common_
     assert(common_stack != NULL);
 
     TreeErr_t error = TREE_SUCCESS;
+
+    if (ConstructComparisonStacks(stack1, stack2, common_stack))
+    {
+        return TREE_STACK_ERR;
+    }
+    if ((error = GetStackWordPath(tree, node1, stack1)))
+    {
+        DestroyComparisonStacks(stack1, stack2, common_stack);
+        return error;
+    }
+    if ((error = GetStackWordPath(tree, node2, stack2)))
+    {
+        DestroyComparisonStacks(stack1, stack2, common_stack);
+        return error;
+    }
+    if ((error = GetCommonConditionsStack(stack1, stack2, common_stack)))
+    {
+        DestroyComparisonStacks(stack1, stack2, common_stack);
+        return error;
+    }
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t ConstructComparisonStacks(Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack)
+{
+    assert(stack1       != NULL);
+    assert(stack2       != NULL);
+    assert(common_stack != NULL);
 
     if (StackCtor(stack1, STACK_MIN_CAPACITY))
     {
@@ -132,29 +175,17 @@ TreeErr_t GetComparisonStacks(Stack_t* stack1, Stack_t* stack2, Stack_t* common_
         StackDtor(stack2);
         return TREE_STACK_ERR;
     }
-    if ((error = GetStackWordPath(tree, node1, stack1)))
-    {
-        StackDtor(common_stack);
-        StackDtor(stack1);
-        StackDtor(stack2);
-        return error;
-    }
-    if ((error = GetStackWordPath(tree, node2, stack2)))
-    {
-        StackDtor(common_stack);
-        StackDtor(stack1);
-        StackDtor(stack2);
-        return error;
-    }
-    if ((error = GetCommonConditionsStack(stack1, stack2, common_stack)))
-    {
-        StackDtor(common_stack);
-        StackDtor(stack1);
-        StackDtor(stack2);
-        return error;
-    }
 
     return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+void DestroyComparisonStacks(Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack)
+{
+    StackDtor(common_stack);
+    StackDtor(stack1);
+    StackDtor(stack2);
 }
 
 //------------------------------------------------------------------------------------------
