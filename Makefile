@@ -18,6 +18,7 @@ CXXFLAGS = -I include -I include/tree -D _DEBUG \
 		   -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr
 
 SOURCES = src/main.cpp \
+		  src/akinator/ak_runprogram.cpp \
 		  src/akinator/ak_addword.cpp \
 		  src/akinator/ak_definitions.cpp \
 		  src/akinator/ak_guess.cpp \

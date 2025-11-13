@@ -2,71 +2,27 @@
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t RunAkinator(Tree_t* tree)
+TreeErr_t AkinatorExecuteGuess(AkinatorCtx_t* ak_ctx)
 {
-    DEBUG_TREE_CHECK(tree, "ERROR BEFORE AKINATOR GUESS");
+    DEBUG_TREE_CHECK(&ak_ctx->tree, "ERROR BEFORE AKINATOR GUESS");
 
     TreeErr_t err = TREE_SUCCESS;
 
-    if (tree->dummy->right == NULL)
+    if (ak_ctx->tree.dummy->right == NULL)
     {
         /* Make empty word for easier program usage */
-        if ((err = AkinatorNodeCtor(tree, EMPTY_WORD, &tree->dummy->right, tree->dummy)))
+        if ((err = AkinatorNodeCtor(&ak_ctx->tree, EMPTY_WORD, &ak_ctx->tree.dummy->right, ak_ctx->tree.dummy)))
         {
             return err;
         }
     }
 
-    int user_active = 1;
-    int answer = 'y';
-
-    while (user_active)
+    if ((err = AkinatorGuessWord(&ak_ctx->tree)))
     {
-        if ((err = AkinatorExecuteProgramOnce(tree, answer, &user_active)))
-        {
-            return err;
-        }
-        if (user_active)
-        {
-            printf("Начать угадывание слова заново? ");
-            answer = GetUserAnswer();
-        }
+        return err;
     }
 
-    DEBUG_TREE_CHECK(tree, "ERROR DUMP AKINATOR GUESS");
-
-    return TREE_SUCCESS;
-}
-
-//------------------------------------------------------------------------------------------
-
-TreeErr_t AkinatorExecuteProgramOnce(Tree_t* tree, int answer, int* user_active)
-{
-    assert(user_active != NULL);
-
-    TreeErr_t err = TREE_SUCCESS;
-
-    switch (answer)
-    {
-        case 'y':
-            if ((err = AkinatorGuessWord(tree, user_active)))
-            {
-                return err;
-            }
-            break;
-
-        case 'n':
-            printf("Завершение программы, хорошего дня :)\n");
-            *user_active = 0;
-            break;
-
-        case EOF:
-            return TREE_INVALID_INPUT;
-
-        default:
-            printf("Введите ответ в виде (да/нет)!\n");
-            break;
-    }
+    DEBUG_TREE_CHECK(&ak_ctx->tree, "ERROR DUMP AKINATOR GUESS");
 
     return TREE_SUCCESS;
 }
@@ -91,10 +47,9 @@ TreeErr_t AkinatorNodeCtor(Tree_t* tree, const char* word, TreeNode_t** node_ptr
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t AkinatorGuessWord(Tree_t* tree, int* user_active)
+TreeErr_t AkinatorGuessWord(Tree_t* tree)
 {
-    assert(user_active != NULL);
-    assert(tree        != NULL);
+    assert(tree != NULL);
 
     TreeNode_t* node = tree->dummy->right;
 
@@ -106,7 +61,6 @@ TreeErr_t AkinatorGuessWord(Tree_t* tree, int* user_active)
 
         if (answer == 'e')
         {
-            *user_active = 0;
             break;
         }
 
@@ -190,6 +144,10 @@ int GetShortAnswer(char* str)
         return 'n';
     }
     else if (strcmp(str, "выход") == 0)
+    {
+        return 'e';
+    }
+    else if (strcmp(str, "в") == 0)
     {
         return 'e';
     }

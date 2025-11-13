@@ -38,31 +38,29 @@ typedef enum AkinatorCmd
 
 typedef struct AkinatorCtx
 {
-    Tree_t* tree;
+    Tree_t tree;
     AkinatorCmd_t cmd;
     int user_active;
 } AkinatorCtx_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-// TreeErr_t (*AK_EXECUTE_CMD_TABLE[]) (AkinatorCtx_t*) =
-// {
-//     [AK_GUESS]       = AkinatorExecuteGuess,
-//     [AK_COMPARE]     = AkinatorExecuteCompare,
-//     [AK_DESCRIBE]    = AkinatorExecuteDescribe,
-//     [AK_READ_DATA]   = AkinatorExecuteReadData,
-//     [AK_WRITE_DATA]  = AkinatorExecuteWriteData,
-// };
+AkinatorCmd_t GetUserCommand(AkinatorCtx_t* ak_ctx);
+
+TreeErr_t AkinatorCtor              (AkinatorCtx_t* ak_ctx);
+TreeErr_t AkinatorDtor              (AkinatorCtx_t* ak_ctx);
+TreeErr_t AkinatorExecuteCmd        (AkinatorCtx_t* ak_ctx);
+TreeErr_t AkinatorExecuteGuess      (AkinatorCtx_t* ak_ctx);
+TreeErr_t AkinatorExecuteProgram    (AkinatorCtx_t* ak_ctx);
+TreeErr_t AkinatorExecuteCompare    (AkinatorCtx_t* ak_ctx);
+TreeErr_t AkinatorExecuteDescribe   (AkinatorCtx_t* ak_ctx);
+TreeErr_t AkinatorExecuteReadData   (AkinatorCtx_t* ak_ctx);
+TreeErr_t AkinatorExecuteWriteData  (AkinatorCtx_t* ak_ctx);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-TreeErr_t RunAkinator               (Tree_t* tree);
-
-TreeErr_t AkinatorExecuteCompare    (Tree_t* tree);
-TreeErr_t AkinatorExecuteDescribe   (Tree_t* tree);
-TreeErr_t AkinatorExecuteProgramOnce(Tree_t* tree, int answer, int* user_active);
 TreeErr_t AkinatorNodeCtor          (Tree_t* tree, const char* word, TreeNode_t** node_ptr, TreeNode_t* parent);
-TreeErr_t AkinatorGuessWord         (Tree_t* tree, int* user_active);
+TreeErr_t AkinatorGuessWord         (Tree_t* tree);
 TreeErr_t AkinatorMakeGuess         (Tree_t* tree, TreeNode_t** node_ptr, int answer);
 
 void  CleanBuffer      (void);
@@ -97,8 +95,20 @@ TreeErr_t   GetStackWordPath      (const Tree_t* tree, TreeNode_t* leaf, Stack_t
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-const int  MAX_INPUT_LEN = 1024;
-const char EMPTY_WORD[]  = "Неизвестно что";
+TreeErr_t (* const AK_EXECUTE_CMD_TABLE[]) (AkinatorCtx_t*) =
+{
+    [AK_GUESS]       = AkinatorExecuteGuess,
+    [AK_COMPARE]     = AkinatorExecuteCompare,
+    [AK_DESCRIBE]    = AkinatorExecuteDescribe,
+    [AK_READ_DATA]   = AkinatorExecuteReadData,
+    [AK_WRITE_DATA]  = AkinatorExecuteWriteData
+};
+
+//——————————————————————————————————————————————————————————————————————————————————————————
+
+const int  MAX_INPUT_LEN          = 1024;
+const char EMPTY_WORD[]           = "Неизвестно что";
+const char AK_DEFAULT_DATA_PATH[] = "data/data_13-Nov-2025_03-00-22.txt";
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 

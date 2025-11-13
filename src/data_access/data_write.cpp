@@ -2,12 +2,20 @@
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeWriteData(const Tree_t* tree)
+TreeErr_t TreeWriteData(const Tree_t* tree, const char* file_path)
 {
     DEBUG_TREE_CHECK(tree, "ERROR BEFORE TREE WRITE DATA");
 
     char data_file_path[MAX_FILE_NAME_LEN] = "";
-    MakeDataFilePath(data_file_path);
+
+    if (file_path == NULL)
+    {
+        MakeDataFilePath(data_file_path);
+    }
+    else
+    {
+        strcpy(data_file_path, file_path);
+    }
 
     FILE* fp = fopen(data_file_path, "w");
 
@@ -21,7 +29,7 @@ TreeErr_t TreeWriteData(const Tree_t* tree)
 
     fclose(fp);
 
-    printf("База данных записана в файл: %s\n", data_file_path);
+    DPRINTF("База данных записана в файл: %s\n", data_file_path);
 
     return TREE_SUCCESS;
 }

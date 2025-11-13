@@ -14,7 +14,7 @@ TreeErr_t ReadNode          (Tree_t* tree, TreeNode_t** node, char* buffer, long
 TreeErr_t ReadNodeData      (char* buffer, long int* pos, char** node_data);
 TreeErr_t ReadNodeDataStrChr(char* buffer, long int* pos, char** node_data);
 
-TreeErr_t TreeWriteData     (const Tree_t* tree);
+TreeErr_t TreeWriteData     (const Tree_t* tree, const char* file_path);
 TreeErr_t TreeReadData      (Tree_t* tree, const char* data_file_path);
 
 //——————————————————————————————————————————————————————————————————————————————————————————

@@ -5,38 +5,24 @@
 
 int main()
 {
-    Tree_t tree = {};
+    AkinatorCtx_t ak_ctx = {};
 
     do {
         DPRINTF("Program start\n");
 
-        if (TreeCtor(&tree))
+        if (AkinatorCtor(&ak_ctx))
             break;
 
-        if (TreeReadData(&tree, "data/data_13-Nov-2025_03-00-22.txt"))
+        if (TreeReadData(&ak_ctx.tree, AK_DEFAULT_DATA_PATH))
             break;
 
-        if (RunAkinatorDescribe(&tree))
-            break;
-
-        if (RunAkinatorCompare(&tree))
-            break;
-
-        // if (AkinatorCompareWords(&tree, "Босс Борис", "Баязит Музик"))
-        //     break;
-
-//         if (AkinatorDescribeWord(&tree, "Баязит Музик"))
-//             break;
-
-        if (RunAkinator(&tree))
-            break;
-
-        if (TreeWriteData(&tree))
+        if (AkinatorExecuteProgram(&ak_ctx))
             break;
 
     } while (0);
 
-    TreeDtor(&tree);
+    if (AkinatorDtor(&ak_ctx))
+        return EXIT_FAILURE;
 
     return EXIT_SUCCESS;
 }

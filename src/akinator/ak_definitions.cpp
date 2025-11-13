@@ -2,8 +2,10 @@
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t AkinatorExecuteCompare(Tree_t* tree)
+TreeErr_t AkinatorExecuteCompare(AkinatorCtx_t* ak_ctx)
 {
+    assert(ak_ctx != NULL);
+
     TreeErr_t error = TREE_SUCCESS;
 
     char word1[MAX_INPUT_LEN] = {};
@@ -33,7 +35,7 @@ TreeErr_t AkinatorExecuteCompare(Tree_t* tree)
 
     printf("\n");
 
-    if ((error = AkinatorCompareWords(tree, word1, word2)))
+    if ((error = AkinatorCompareWords(&ak_ctx->tree, word1, word2)))
     {
         return error;
     }
@@ -57,7 +59,18 @@ TreeErr_t AkinatorCompareWords(Tree_t* tree, const char* word1, const char* word
     Stack_t common_stack = {};
 
     TreeNode_t* node1 = TreeSearch(tree->dummy->right, word1);
+    if (node1 == NULL)
+    {
+        printf(BLUE "Такого слова нет!\n\n" RESET_CLR);
+        return TREE_SUCCESS;
+    }
+
     TreeNode_t* node2 = TreeSearch(tree->dummy->right, word2);
+    if (node2 == NULL)
+    {
+        printf(BLUE "Такого слова нет!\n" RESET_CLR);
+        return TREE_SUCCESS;
+    }
 
     if ((error = GetComparisonStacks(&stack1, &stack2, &common_stack, node1, node2, tree)))
     {
@@ -266,8 +279,10 @@ TreeNode_t* TreeSearch(TreeNode_t* node, const char* word)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t AkinatorExecuteDescribe(Tree_t* tree)
+TreeErr_t AkinatorExecuteDescribe(AkinatorCtx_t* ak_ctx)
 {
+    assert(ak_ctx != NULL);
+
     TreeErr_t error = TREE_SUCCESS;
 
     char word[MAX_INPUT_LEN] = {};
@@ -286,7 +301,7 @@ TreeErr_t AkinatorExecuteDescribe(Tree_t* tree)
 
     printf("\n");
 
-    if ((error = AkinatorDescribeWord(tree, word)))
+    if ((error = AkinatorDescribeWord(&ak_ctx->tree, word)))
     {
         return error;
     }
@@ -312,8 +327,16 @@ TreeErr_t AkinatorDescribeWord(const Tree_t* tree, const char* word)
 
     TreeNode_t* node = TreeSearch(tree->dummy->right, word);
 
+    if (node == NULL)
+    {
+        printf(BLUE "Такого слова нет!\n" RESET_CLR);
+        StackDtor(&stack);
+        return TREE_SUCCESS;
+    }
+
     if ((error = GetStackWordPath(tree, node, &stack)))
     {
+        StackDtor(&stack);
         return error;
     }
 
@@ -321,6 +344,7 @@ TreeErr_t AkinatorDescribeWord(const Tree_t* tree, const char* word)
 
     if ((error = PrintStackWordPath(&stack)))
     {
+        StackDtor(&stack);
         return error;
     }
 
