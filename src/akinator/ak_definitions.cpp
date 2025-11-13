@@ -2,6 +2,47 @@
 
 //------------------------------------------------------------------------------------------
 
+TreeErr_t AkinatorExecuteCompare(Tree_t* tree)
+{
+    TreeErr_t error = TREE_SUCCESS;
+
+    char word1[MAX_INPUT_LEN] = {};
+    char word2[MAX_INPUT_LEN] = {};
+
+    printf(BLUE "Сравнение двух слов:\n" RESET_CLR);
+
+    printf(" Введите первое слово: ");
+
+    if (scanf("%1023[^\n]", word1) != 1)
+    {
+        PRINTERR("Scanf failed");
+        return TREE_INVALID_INPUT;
+    }
+
+    CleanBuffer();
+
+    printf(" Введите второе слово: ");
+
+    if (scanf("%1023[^\n]", word2) != 1)
+    {
+        PRINTERR("Scanf failed");
+        return TREE_INVALID_INPUT;
+    }
+
+    CleanBuffer();
+
+    printf("\n");
+
+    if ((error = AkinatorCompareWords(tree, word1, word2)))
+    {
+        return error;
+    }
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
 TreeErr_t AkinatorCompareWords(Tree_t* tree, const char* word1, const char* word2)
 {
     assert(word1 != NULL);
@@ -25,9 +66,15 @@ TreeErr_t AkinatorCompareWords(Tree_t* tree, const char* word1, const char* word
 
     printf(BLUE "Сравнение %s и %s:\n" RESET_CLR, word1, word2);
 
-    printf(" %s, как и %s ", word1, word2);
-
-    PrintStackWordPath(&common_stack);
+    if (common_stack.size > 0)
+    {
+        printf(" %s, как и %s ", word1, word2);
+        PrintStackWordPath(&common_stack);
+    }
+    else
+    {
+        printf(" %s и %s не имеют ничего общего\n", word1, word2);
+    }
 
     printf(" но %s ", word1);
 
@@ -215,6 +262,36 @@ TreeNode_t* TreeSearch(TreeNode_t* node, const char* word)
     }
 
     return NULL;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t AkinatorExecuteDescribe(Tree_t* tree)
+{
+    TreeErr_t error = TREE_SUCCESS;
+
+    char word[MAX_INPUT_LEN] = {};
+
+    printf(BLUE "Определение слова:\n" RESET_CLR);
+
+    printf(" Введите слово: ");
+
+    if (scanf("%1023[^\n]", word) != 1)
+    {
+        PRINTERR("Scanf failed");
+        return TREE_INVALID_INPUT;
+    }
+
+    CleanBuffer();
+
+    printf("\n");
+
+    if ((error = AkinatorDescribeWord(tree, word)))
+    {
+        return error;
+    }
+
+    return TREE_SUCCESS;
 }
 
 //------------------------------------------------------------------------------------------

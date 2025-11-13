@@ -16,20 +16,24 @@ int main()
         if (TreeReadData(&tree, "data/data_13-Nov-2025_03-00-22.txt"))
             break;
 
-        if (AkinatorCompareWords(&tree, "Босс Борис", "Баязит Музик"))
+        if (RunAkinatorDescribe(&tree))
             break;
 
-        if (AkinatorDescribeWord(&tree, "Босс Борис"))
+        if (RunAkinatorCompare(&tree))
             break;
 
-        if (AkinatorDescribeWord(&tree, "Баязит Музик"))
-            break;
+        // if (AkinatorCompareWords(&tree, "Босс Борис", "Баязит Музик"))
+        //     break;
+
+//         if (AkinatorDescribeWord(&tree, "Баязит Музик"))
+//             break;
 
         if (RunAkinator(&tree))
             break;
 
         if (TreeWriteData(&tree))
             break;
+
     } while (0);
 
     TreeDtor(&tree);

@@ -20,7 +20,46 @@ typedef struct Step
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
+typedef enum AkinatorCmd
+{
+    AK_GUESS,
+    AK_COMPARE,
+    AK_DESCRIBE,
+    AK_READ_DATA,
+    AK_WRITE_DATA,
+
+    AK_CMD_COUNT,
+
+    AK_EXIT,
+    AK_UNKNOWN_CMD
+} AkinatorCmd_t;
+
+//——————————————————————————————————————————————————————————————————————————————————————————
+
+typedef struct AkinatorCtx
+{
+    Tree_t* tree;
+    AkinatorCmd_t cmd;
+    int user_active;
+} AkinatorCtx_t;
+
+//——————————————————————————————————————————————————————————————————————————————————————————
+
+// TreeErr_t (*AK_EXECUTE_CMD_TABLE[]) (AkinatorCtx_t*) =
+// {
+//     [AK_GUESS]       = AkinatorExecuteGuess,
+//     [AK_COMPARE]     = AkinatorExecuteCompare,
+//     [AK_DESCRIBE]    = AkinatorExecuteDescribe,
+//     [AK_READ_DATA]   = AkinatorExecuteReadData,
+//     [AK_WRITE_DATA]  = AkinatorExecuteWriteData,
+// };
+
+//——————————————————————————————————————————————————————————————————————————————————————————
+
 TreeErr_t RunAkinator               (Tree_t* tree);
+
+TreeErr_t AkinatorExecuteCompare    (Tree_t* tree);
+TreeErr_t AkinatorExecuteDescribe   (Tree_t* tree);
 TreeErr_t AkinatorExecuteProgramOnce(Tree_t* tree, int answer, int* user_active);
 TreeErr_t AkinatorNodeCtor          (Tree_t* tree, const char* word, TreeNode_t** node_ptr, TreeNode_t* parent);
 TreeErr_t AkinatorGuessWord         (Tree_t* tree, int* user_active);

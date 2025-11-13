@@ -164,8 +164,6 @@ int GetUserAnswer()
 {
     char answer[MAX_INPUT_LEN] = {};
 
-    // TODO: что если пользователь ввел слишком много
-
     if (scanf("%63s", answer) != 1)
     {
         PRINTERR("Scanf failed");

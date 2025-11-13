@@ -123,8 +123,6 @@ int ConditionHasNegatives(char* condition)
 {
     assert(condition != NULL);
 
-// TODO: внутри слова можно не
-
     if (strstr(condition, "не ") != NULL || strstr(condition, " не ") != NULL)
     {
         free(condition);
