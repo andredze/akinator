@@ -1,5 +1,3 @@
-#include <locale.h>
-#include <langinfo.h>
 #include "tree_commands.h"
 
 //------------------------------------------------------------------------------------------
@@ -54,9 +52,9 @@ TreeErr_t TreeCtor(Tree_t* tree)
         return error;
     }
 
-    tree->dummy = dummy;
-
-    tree->size  = 0;
+    tree->dummy  = dummy;
+    tree->buffer = NULL;
+    tree->size   = 0;
 
     DEBUG_TREE_CHECK(tree, "ERROR DUMP AFTER CTOR");
     // TREE_CALL_DUMP(tree, "DUMP AFTER CTOR");
@@ -102,13 +100,17 @@ TreeErr_t TreeDtor(Tree_t* tree)
 {
     assert(tree != NULL);
 
-    free(tree->buffer);
-
     TreeErr_t error = TREE_SUCCESS;
 
     if ((error = TreeNodeDtor(tree->dummy)))
     {
         return error;
+    }
+
+    if (tree->buffer)
+    {
+        free(tree->buffer);
+        tree->buffer = NULL;
     }
 
     return TREE_SUCCESS;

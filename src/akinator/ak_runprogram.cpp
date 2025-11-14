@@ -87,14 +87,14 @@ AkinatorCmd_t GetUserCommand(AkinatorCtx_t* ak_ctx)
 {
     char answer[MAX_INPUT_LEN] = {};
 
-    printf( BLUE "Р’РІРµРґРёС‚Рµ РєРѕРјР°РЅРґСѓ РёР· СЃРїРёСЃРєР° " RESET_CLR "\n"
-            "    [Сѓ] - СѓРіР°РґС‹РІР°РЅРёРµ СЃР»РѕРІР°,\n"       // guess
-            "    [СЃ] - СЃСЂР°РІРЅРµРЅРёРµ СЃР»РѕРІ,\n"         // compare
-            "    [Рѕ] - РѕРїСЂРµРґРµР»РµРЅРёРµ СЃР»РѕРІР°,\n"      // describe
-            "    [С‡] - Р·Р°РіСЂСѓР·РёС‚СЊ Р±Р°Р·Сѓ РґР°РЅРЅС‹С…,\n"  // read
-            "    [Р·] - Р·Р°РїРёСЃР°С‚СЊ РІ Р±Р°Р·Сѓ РґР°РЅРЅС‹С…,\n" // write
-            "    [РІ] - РІС‹С…РѕРґ РёР· РїСЂРѕРіСЂР°РјРјС‹ \n"     // exit
-            "\n" BLUE "РљРѕРјР°РЅРґР°: " RESET_CLR);
+    printf( BLUE "Введите команду из списка " RESET_CLR "\n"
+            "    [у] - угадывание слова,\n"       // guess
+            "    [с] - сравнение слов,\n"         // compare
+            "    [о] - определение слова,\n"      // describe
+            "    [ч] - загрузить базу данных,\n"  // read
+            "    [з] - записать в базу данных,\n" // write
+            "    [в] - выход из программы \n"     // exit
+            "\n" BLUE "Команда: " RESET_CLR);
 
     if (scanf("%63s", answer) != 1)
     {
@@ -106,27 +106,29 @@ AkinatorCmd_t GetUserCommand(AkinatorCtx_t* ak_ctx)
 
     printf("\n");
 
-    if (strcmp(answer, "Сѓ") == 0)
+    // DPRINTF("answer is \"%s\"\n", answer);
+
+    if (strcmp(answer, "у") == 0)
     {
         return AK_GUESS;
     }
-    if (strcmp(answer, "СЃ") == 0)
+    if (strcmp(answer, "с") == 0)
     {
         return AK_COMPARE;
     }
-    if (strcmp(answer, "Рѕ") == 0)
+    if (strcmp(answer, "о") == 0)
     {
         return AK_DESCRIBE;
     }
-    if (strcmp(answer, "С‡") == 0)
+    if (strcmp(answer, "ч") == 0)
     {
         return AK_READ_DATA;
     }
-    if (strcmp(answer, "Р·") == 0)
+    if (strcmp(answer, "з") == 0)
     {
         return AK_WRITE_DATA;
     }
-    if (strcmp(answer, "РІ") == 0)
+    if (strcmp(answer, "в") == 0)
     {
         ak_ctx->user_active = 0;
         return AK_EXIT;
@@ -178,9 +180,9 @@ TreeErr_t AkinatorExecuteReadData(AkinatorCtx_t* ak_ctx)
 
     char file_path[MAX_INPUT_LEN] = {};
 
-    printf(BLUE "РЎС‡РёС‚С‹РІР°РЅРёРµ РґРµСЂРµРІР° СЃ Р±Р°Р·С‹ РґР°РЅРЅС‹С…:\n" RESET_CLR);
+    printf(BLUE "Считывание дерева с базы данных:\n" RESET_CLR);
 
-    printf(" Р’РІРµРґРёС‚Рµ РїСѓС‚СЊ Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С…: ");
+    printf(" Введите путь к базе данных: ");
 
     if (scanf("%1023[^\n]", file_path) != 1)
     {
@@ -197,7 +199,7 @@ TreeErr_t AkinatorExecuteReadData(AkinatorCtx_t* ak_ctx)
         return error;
     }
 
-    printf(BLUE "Р‘Р°Р·Р° РґР°РЅРЅС‹С… \"%s\" СѓСЃРїРµС€РЅРѕ СЃС‡РёС‚Р°РЅР°!\n" RESET_CLR, file_path);
+    printf(BLUE "База данных \"%s\" успешно считана!\n" RESET_CLR, file_path);
 
     return TREE_SUCCESS;
 }
@@ -212,9 +214,9 @@ TreeErr_t AkinatorExecuteWriteData(AkinatorCtx_t* ak_ctx)
 
     char file_path[MAX_INPUT_LEN] = {};
 
-    printf(BLUE "Р—Р°РїРёСЃСЊ РґРµСЂРµРІР° РІ Р±Р°Р·Сѓ РґР°РЅРЅС‹С…:\n" RESET_CLR);
+    printf(BLUE "Запись дерева в базу данных:\n" RESET_CLR);
 
-    printf(" Р’РІРµРґРёС‚Рµ РїСѓС‚СЊ Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С…: ");
+    printf(" Введите путь к базе данных: ");
 
     if (scanf("%1023[^\n]", file_path) != 1)
     {
@@ -231,7 +233,7 @@ TreeErr_t AkinatorExecuteWriteData(AkinatorCtx_t* ak_ctx)
         return error;
     }
 
-    printf(BLUE "Р‘Р°Р·Р° РґР°РЅРЅС‹С… \"%s\" СѓСЃРїРµС€РЅРѕ Р·Р°РїРёСЃР°РЅР°!\n" RESET_CLR, file_path);
+    printf(BLUE "База данных \"%s\" успешно записана!\n" RESET_CLR, file_path);
 
     return TREE_SUCCESS;
 }

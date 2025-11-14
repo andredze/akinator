@@ -62,7 +62,7 @@ TreeErr_t AkinatorGetNewWord(char** new_word_data)
     char new_word_buf[MAX_INPUT_LEN] = "";
     int  new_word_len = 0;
 
-    printf("РљС‚Рѕ СЌС‚Рѕ Р±С‹Р»? Р­С‚Рѕ Р±С‹Р» ");
+    printf("Кто это был? Это был ");
 
     if (scanf("%1023[^\n]%n", new_word_buf, &new_word_len) != 1)
     {
@@ -95,7 +95,7 @@ TreeErr_t AkinatorGetCondition(char** condition_data, const char* guess_word, co
     char condition_buf[MAX_INPUT_LEN] = "";
     int  condition_len = 0;
 
-    printf("Р’ РѕС‚Р»РёС‡РёРµ РѕС‚ %s %s ", guess_word, new_word);
+    printf("В отличие от %s %s ", guess_word, new_word);
 
     if (scanf("%1023[^\n]%n", condition_buf, &condition_len) != 1)
     {
@@ -123,7 +123,7 @@ int ConditionHasNegatives(char* condition)
 {
     assert(condition != NULL);
 
-    if (strstr(condition, "РЅРµ ") != NULL || strstr(condition, " РЅРµ ") != NULL)
+    if (strstr(condition, "не ") != NULL || strstr(condition, " не ") != NULL)
     {
         free(condition);
         return 1;

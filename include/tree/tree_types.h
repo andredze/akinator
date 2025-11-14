@@ -23,10 +23,10 @@ const TreeElem_t TREE_POISON = NULL;
 
 typedef struct TreeNode
 {
-    TreeElem_t       data;
-    struct TreeNode* left;
-    struct TreeNode* right;
-    struct TreeNode* parent;
+    TreeElem_t data;
+    TreeNode*  left;
+    TreeNode*  right;
+    TreeNode*  parent;
 
     int dynamic_memory;
 } TreeNode_t;

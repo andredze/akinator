@@ -1,0 +1,130 @@
+
+--------------------------------------------------
+TXLib предупреждает:
+
+Программа: D:\Coding\akinator\run.exe,
+
+ВНЕЗАПНО: #1: Куча была повреждена. (0xC0000374) при выполнении кода по адресу 0x00007FFFAAC6F489 в функции RtlIsZeroMemory() в модуле C:\Windows\SYSTEM32\ntdll.dll. Спасибо _txVectoredExceptionHandler(), что сообщил. Люблю его <3
+
+Ой, всё (EXCEPTION_NONCONTINUABLE).
+
+#1: TXLib [Ver: 00173a, Rev: 174, Date: 2025-08-17 06:00:49 +0400], Instance: 0x00007FF7229F27D0 (64-bit), Flags: Cmdre0, Thread: 0x3B74 (Main). 
+
+--------------------------------------------------
+Стек вызовов:
+
+# 0 0x00007FFFAAC6F489 in C:\Windows\SYSTEM32\ntdll.dll: RtlIsZeroMemory()
+# 1 0x00007FFFAAC6F453 in C:\Windows\SYSTEM32\ntdll.dll: RtlIsZeroMemory()
+# 2 0x00007FFFAAC781D2 in C:\Windows\SYSTEM32\ntdll.dll: RtlpNtSetValueKey()
+# 3 0x00007FFFAAC784BA in C:\Windows\SYSTEM32\ntdll.dll: RtlpNtSetValueKey()
+# 4 0x00007FFFAAC7E141 in C:\Windows\SYSTEM32\ntdll.dll: RtlpNtSetValueKey()
+# 5 0x00007FFFAAB95BF0 in C:\Windows\SYSTEM32\ntdll.dll: RtlGetCurrentServiceSessionId()
+# 6 0x00007FFFAAB947B1 in C:\Windows\SYSTEM32\ntdll.dll: RtlFreeHeap()
+# 7 0x00007FFFA823F05B in C:\Windows\System32\ucrtbase.dll: free_base()
+
+# 8 0x00007FF7228B68E7 in D:\Coding\akinator\run.exe: TreeDtor() at D:/Coding/akinator/src/tree/tree_commands.cpp:103:
+
+    101:     assert(tree != NULL);
+    102: 
+=>  103:     free(tree->buffer);
+    104: 
+    105:     TreeErr_t error = TREE_SUCCESS;
+
+# 9 0x00007FF7228B3227 in D:\Coding\akinator\run.exe: AkinatorDtor() at D:/Coding/akinator/src/akinator/ak_runprogram.cpp:34:
+
+     32:     TreeErr_t error = TREE_SUCCESS;
+     33: 
+=>   34:     if ((error = TreeDtor(&ak_ctx->tree)))
+     35:     {
+     36:         return error;
+
+#10 0x00007FF7228B1D47 in D:\Coding\akinator\run.exe: main() at D:/Coding/akinator/src/main.cpp:34:
+
+     32:     } while (0);
+     33: 
+=>   34:     if (AkinatorDtor(&ak_ctx))
+     35:         return EXIT_FAILURE;
+     36: 
+
+--------------------------------------------------
+Developed with:
+
+The Dumb Artist Library (TX Library)
+TXLib [Ver: 00173a, Rev: 174, Date: 2025-08-17 06:00:49 +0400]
+Copyright (C) Ded (Ilya Dedinsky, http://txlib.ru) <mail@txlib.ru>
+See license on: http://txlib.ru
+
+TXLib file:	D:\TX\TXLib.h
+Compiled:	Nov 14 2025 22:06:03, GNU g++ 15.1.0, std=201703L, MinGW-W64 Runtime 12.0.0 (alpha - rev. 0) 0000-00-00, 64-bit, DEBUG
+Started:	Nov 14 2025 22:06:28
+
+Run file:	D:\Coding\akinator\run.exe
+Directory:	D:\Coding\akinator
+
+--------------------------------------------------
+
+--------------------------------------------------
+TXLib соболезнует...
+
+Программа: D:\Coding\akinator\run.exe,
+
+ВНЕЗАПНО: #1: Куча была повреждена. (0xC0000374) при выполнении кода по адресу 0x00007FFFAAC6F489 в функции RtlIsZeroMemory() в модуле C:\Windows\SYSTEM32\ntdll.dll. Спасибо _txVectoredExceptionHandler(), что сообщил. Люблю его <3
+
+Ой, всё (EXCEPTION_NONCONTINUABLE).
+
+С помощью функции _set_se_translator() вы можете сами обработать эту ошибку.
+
+#2: TXLib [Ver: 00173a, Rev: 174, Date: 2025-08-17 06:00:49 +0400], Instance: 0x00007FF7229F27D0 (64-bit), Flags: Cmdre0, Thread: 0x3B74 (Main). 
+
+--------------------------------------------------
+Стек вызовов:
+
+# 0 0x00007FFFAAC6F489 in C:\Windows\SYSTEM32\ntdll.dll: RtlIsZeroMemory()
+# 1 0x00007FFFAAC6F453 in C:\Windows\SYSTEM32\ntdll.dll: RtlIsZeroMemory()
+# 2 0x00007FFFAAC781D2 in C:\Windows\SYSTEM32\ntdll.dll: RtlpNtSetValueKey()
+# 3 0x00007FFFAAC784BA in C:\Windows\SYSTEM32\ntdll.dll: RtlpNtSetValueKey()
+# 4 0x00007FFFAAC7E141 in C:\Windows\SYSTEM32\ntdll.dll: RtlpNtSetValueKey()
+# 5 0x00007FFFAAB95BF0 in C:\Windows\SYSTEM32\ntdll.dll: RtlGetCurrentServiceSessionId()
+# 6 0x00007FFFAAB947B1 in C:\Windows\SYSTEM32\ntdll.dll: RtlFreeHeap()
+# 7 0x00007FFFA823F05B in C:\Windows\System32\ucrtbase.dll: free_base()
+
+# 8 0x00007FF7228B68E7 in D:\Coding\akinator\run.exe: TreeDtor() at D:/Coding/akinator/src/tree/tree_commands.cpp:103:
+
+    101:     assert(tree != NULL);
+    102: 
+=>  103:     free(tree->buffer);
+    104: 
+    105:     TreeErr_t error = TREE_SUCCESS;
+
+# 9 0x00007FF7228B3227 in D:\Coding\akinator\run.exe: AkinatorDtor() at D:/Coding/akinator/src/akinator/ak_runprogram.cpp:34:
+
+     32:     TreeErr_t error = TREE_SUCCESS;
+     33: 
+=>   34:     if ((error = TreeDtor(&ak_ctx->tree)))
+     35:     {
+     36:         return error;
+
+#10 0x00007FF7228B1D47 in D:\Coding\akinator\run.exe: main() at D:/Coding/akinator/src/main.cpp:34:
+
+     32:     } while (0);
+     33: 
+=>   34:     if (AkinatorDtor(&ak_ctx))
+     35:         return EXIT_FAILURE;
+     36: 
+
+--------------------------------------------------
+Developed with:
+
+The Dumb Artist Library (TX Library)
+TXLib [Ver: 00173a, Rev: 174, Date: 2025-08-17 06:00:49 +0400]
+Copyright (C) Ded (Ilya Dedinsky, http://txlib.ru) <mail@txlib.ru>
+See license on: http://txlib.ru
+
+TXLib file:	D:\TX\TXLib.h
+Compiled:	Nov 14 2025 22:06:03, GNU g++ 15.1.0, std=201703L, MinGW-W64 Runtime 12.0.0 (alpha - rev. 0) 0000-00-00, 64-bit, DEBUG
+Started:	Nov 14 2025 22:06:29
+
+Run file:	D:\Coding\akinator\run.exe
+Directory:	D:\Coding\akinator
+
+--------------------------------------------------

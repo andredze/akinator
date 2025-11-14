@@ -16,16 +16,17 @@ int SetDirectories(char* log_filename, char* log_dir)
     static char image_dir [MAX_FILENAME_LEN] = "";
     static char dot_dir   [MAX_FILENAME_LEN] = "";
 
-    strftime(time_dir, sizeof(time_dir), "[%Y-%m-%d_%H:%M:%S]", info);
+    strftime(time_dir, sizeof(time_dir), "%Y-%m-%d_%H%M%S", info);
 
     snprintf(log_dir, MAX_FILENAME_LEN, "log/%s", time_dir);
-    mkdir(log_dir, 0777);
+    printf("log/%s", time_dir);
+    mkdir(log_dir);
 
     snprintf(image_dir, sizeof(image_dir), "log/%s/svg", time_dir);
-    mkdir(image_dir, 0777);
+    mkdir(image_dir);
 
     snprintf(dot_dir, sizeof(dot_dir), "log/%s/dot", time_dir);
-    mkdir(dot_dir, 0777);
+    mkdir(dot_dir);
 
     snprintf(log_filename, MAX_FILENAME_LEN, "log/%s/tree.html", time_dir);
 
@@ -420,6 +421,29 @@ int MakeTreeEdges(const TreeNode_t* node, FILE* fp)
 
 //------------------------------------------------------------------------------------------
 
+int ConvertDataToUTF8(const char* src, char* dest)
+{
+    assert(src  != NULL);
+    assert(dest != NULL);
+
+    wchar_t wide_string[MAX_LABEL_LEN] = {};
+
+    if (MultiByteToWideChar(SRC_LOCALE, 0, src, -1, wide_string, MAX_LABEL_LEN) == 0)
+    {
+        PRINTERR("Error with converting to wide string");
+        return EOF;
+    }
+    if (WideCharToMultiByte(DEST_LOCALE, 0, wide_string, -1, dest, MAX_LABEL_LEN, NULL, NULL) == 0)
+    {
+        PRINTERR("Error with converting to UTF-8");
+        return EOF;
+    }
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------------------
+
 int MakeTreeDefaultNode(const TreeNode_t* node,
                         const char* color,
                         const char* fillcolor,
@@ -445,7 +469,14 @@ int MakeTreeDefaultNode(const TreeNode_t* node,
     }
     else
     {
-        current_pos += sprintf(current_pos + label, TREE_SPEC, node->data);
+        char utf8_data[MAX_LABEL_LEN] = {};
+
+        if (ConvertDataToUTF8(node->data, utf8_data) == EOF)
+        {
+            return 1;
+        }
+
+        current_pos += sprintf(current_pos + label, TREE_SPEC, utf8_data);
     }
 
     sprintf(current_pos + label, " | { left = %p | right = %p }}",

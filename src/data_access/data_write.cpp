@@ -29,7 +29,7 @@ TreeErr_t TreeWriteData(const Tree_t* tree, const char* file_path)
 
     fclose(fp);
 
-    DPRINTF("Р‘Р°Р·Р° РґР°РЅРЅС‹С… Р·Р°РїРёСЃР°РЅР° РІ С„Р°Р№Р»: %s\n", data_file_path);
+    DPRINTF("База данных записана в файл: %s\n", data_file_path);
 
     return TREE_SUCCESS;
 }

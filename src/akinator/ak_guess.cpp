@@ -55,7 +55,7 @@ TreeErr_t AkinatorGuessWord(Tree_t* tree)
 
     while (node != NULL)
     {
-        printf("РўРІРѕР№ РїРµСЂСЃРѕРЅР°Р¶ %s? (РґР°/РЅРµС‚): ", node->data);
+        printf("Твой персонаж %s? (да/нет): ", node->data);
 
         int answer = GetUserAnswer();
 
@@ -79,7 +79,7 @@ TreeErr_t AkinatorGuessWord(Tree_t* tree)
         }
         else
         {
-            printf("Р’РІРµРґРё РѕС‚РІРµС‚ РІ РІРёРґРµ (РґР°/РЅРµС‚/РІС‹С…РѕРґ)!\n");
+            printf("Введи ответ в виде (да/нет/выход)!\n");
             continue;
         }
     }
@@ -97,12 +97,12 @@ TreeErr_t AkinatorMakeGuess(Tree_t* tree, TreeNode_t** node_ptr, int answer)
     switch (answer)
     {
         case 'y':
-            printf("РЇ СѓРіР°РґР°Р» Р±СЌСѓРјСЃ\n");
+            printf("Я угадал бэумс\n");
             *node_ptr = tree->dummy;
             break;
 
         case 'n':
-            printf("РљР°РїРµС† С‚С‹ РєРѕРіРѕ С‚Р°Рј Р·Р°РіР°РґР°Р»(-Р°)\n");
+            printf("Капец ты кого там загадал(-а)\n");
             return AkinatorAddWord(tree, *node_ptr);
 
         default:
@@ -135,19 +135,19 @@ int GetShortAnswer(char* str)
 {
     assert(str != NULL);
 
-    if (strcmp(str, "РґР°") == 0)
+    if (strcmp(str, "да") == 0)
     {
         return 'y';
     }
-    else if (strcmp(str, "РЅРµС‚") == 0)
+    else if (strcmp(str, "нет") == 0)
     {
         return 'n';
     }
-    else if (strcmp(str, "РІС‹С…РѕРґ") == 0)
+    else if (strcmp(str, "выход") == 0)
     {
         return 'e';
     }
-    else if (strcmp(str, "РІ") == 0)
+    else if (strcmp(str, "в") == 0)
     {
         return 'e';
     }

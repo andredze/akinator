@@ -11,9 +11,9 @@ TreeErr_t AkinatorExecuteCompare(AkinatorCtx_t* ak_ctx)
     char word1[MAX_INPUT_LEN] = {};
     char word2[MAX_INPUT_LEN] = {};
 
-    printf(BLUE "РЎСЂР°РІРЅРµРЅРёРµ РґРІСѓС… СЃР»РѕРІ:\n" RESET_CLR);
+    printf(BLUE "Сравнение двух слов:\n" RESET_CLR);
 
-    printf(" Р’РІРµРґРёС‚Рµ РїРµСЂРІРѕРµ СЃР»РѕРІРѕ: ");
+    printf(" Введите первое слово: ");
 
     if (scanf("%1023[^\n]", word1) != 1)
     {
@@ -23,7 +23,7 @@ TreeErr_t AkinatorExecuteCompare(AkinatorCtx_t* ak_ctx)
 
     CleanBuffer();
 
-    printf(" Р’РІРµРґРёС‚Рµ РІС‚РѕСЂРѕРµ СЃР»РѕРІРѕ: ");
+    printf(" Введите второе слово: ");
 
     if (scanf("%1023[^\n]", word2) != 1)
     {
@@ -61,14 +61,14 @@ TreeErr_t AkinatorCompareWords(Tree_t* tree, const char* word1, const char* word
     TreeNode_t* node1 = TreeSearch(tree->dummy->right, word1);
     if (node1 == NULL)
     {
-        printf(BLUE "РЎР»РѕРІР° %s РЅРµС‚ РІ Р±Р°Р·Рµ!\n" RESET_CLR, word1);
+        printf(BLUE "Слова %s нет в базе!\n" RESET_CLR, word1);
         return TREE_SUCCESS;
     }
 
     TreeNode_t* node2 = TreeSearch(tree->dummy->right, word2);
     if (node2 == NULL)
     {
-        printf(BLUE "РЎР»РѕРІР° %s РЅРµС‚ РІ Р±Р°Р·Рµ!\n" RESET_CLR, word2);
+        printf(BLUE "Слова %s нет в базе!\n" RESET_CLR, word2);
         return TREE_SUCCESS;
     }
 
@@ -95,25 +95,35 @@ void PrintComparison(const char* word1, const char* word2,
     assert(stack2       != NULL);
     assert(common_stack != NULL);
 
-    printf(BLUE "РЎСЂР°РІРЅРµРЅРёРµ %s Рё %s:\n" RESET_CLR, word1, word2);
+    printf(BLUE "Сравнение %s и %s:\n" RESET_CLR, word1, word2);
 
     if (common_stack->size > 0)
     {
-        printf(" %s, РєР°Рє Рё %s ", word1, word2);
+        printf(" %s, как и %s ", word1, word2);
         PrintStackWordPath(common_stack);
     }
     else
     {
-        printf(" %s Рё %s РЅРµ РёРјРµСЋС‚ РЅРёС‡РµРіРѕ РѕР±С‰РµРіРѕ\n", word1, word2);
+        printf(" %s и %s не имеют ничего общего\n", word1, word2);
     }
-
-    printf(" РЅРѕ %s ", word1);
-
-    PrintStackWordPath(stack1);
-
-    printf(" a %s ", word2);
-
-    PrintStackWordPath(stack2);
+    if (stack1->size > 0)
+    {
+        printf(" но %s ", word1);
+        PrintStackWordPath(stack1);
+    }
+    else
+    {
+        printf(" и %s не имеет отличительных свойств", word1);
+    }
+    if (stack2->size > 0)
+    {
+        printf(" а %s ", word2);
+        PrintStackWordPath(stack2);
+    }
+    else
+    {
+        printf(" и %s не имеет отличительных свойств", word2);
+    }
 
     printf("\n");
 }
@@ -143,7 +153,7 @@ TreeErr_t GetComparisonStacks(Stack_t* stack1, Stack_t* stack2, Stack_t* common_
         DestroyComparisonStacks(stack1, stack2, common_stack);
         return error;
     }
-    if ((error = GetCommonConditionsStack(stack1, stack2, common_stack)))
+    if ((error = GetCommonConditionsStack(tree, stack1, stack2, common_stack)))
     {
         DestroyComparisonStacks(stack1, stack2, common_stack);
         return error;
@@ -190,21 +200,15 @@ void DestroyComparisonStacks(Stack_t* stack1, Stack_t* stack2, Stack_t* common_s
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t GetCommonConditionsStack(Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack)
+TreeErr_t GetCommonConditionsStack(const Tree_t* tree, Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack)
 {
     assert(common_stack != NULL);
     assert(stack1       != NULL);
     assert(stack2       != NULL);
 
-    Stack_t reversed_common = {};
-
-    if (StackCtor(&reversed_common, STACK_MIN_CAPACITY))
-    {
-        return TREE_STACK_ERR;
-    }
-
-    TreeStep_t step1 = {};
-    TreeStep_t step2 = {};
+    TreeStep_t step1           = {};
+    TreeStep_t step2           = {};
+    TreeStep_t first_diff_step = {};
 
     while (1)
     {
@@ -214,13 +218,10 @@ TreeErr_t GetCommonConditionsStack(Stack_t* stack1, Stack_t* stack2, Stack_t* co
         if (StackPop(stack2, &step2))
             return TREE_STACK_ERR;
 
-        if (TreeStepsEqual(&step1, &step2))
+        if (!(TreeStepsEqual(&step1, &step2)))
         {
-            if (StackPush(&reversed_common, step1))
-                return TREE_STACK_ERR;
-        }
-        else
-        {
+            first_diff_step = step1;
+
             if (StackPush(stack1, step1))
                 return TREE_STACK_ERR;
 
@@ -231,32 +232,8 @@ TreeErr_t GetCommonConditionsStack(Stack_t* stack1, Stack_t* stack2, Stack_t* co
         }
     }
 
-    if (ReverseStack(&reversed_common, common_stack))
+    if (GetStackWordPath(tree, first_diff_step.node, common_stack))
         return TREE_STACK_ERR;
-
-    if (StackDtor(&reversed_common))
-        return TREE_STACK_ERR;
-
-    return TREE_SUCCESS;
-}
-
-//------------------------------------------------------------------------------------------
-
-TreeErr_t ReverseStack(Stack_t* src_stack, Stack_t* dest_stack)
-{
-    assert(src_stack  != NULL);
-    assert(dest_stack != NULL);
-
-    item_t elem = POISON;
-
-    while (src_stack->size > 0)
-    {
-        if (StackPop(src_stack, &elem))
-            return TREE_STACK_ERR;
-
-        if (StackPush(dest_stack, elem))
-            return TREE_STACK_ERR;
-    }
 
     return TREE_SUCCESS;
 }
@@ -318,9 +295,9 @@ TreeErr_t AkinatorExecuteDescribe(AkinatorCtx_t* ak_ctx)
 
     char word[MAX_INPUT_LEN] = {};
 
-    printf(BLUE "РћРїСЂРµРґРµР»РµРЅРёРµ СЃР»РѕРІР°:\n" RESET_CLR);
+    printf(BLUE "Определение слова:\n" RESET_CLR);
 
-    printf(" Р’РІРµРґРёС‚Рµ СЃР»РѕРІРѕ: ");
+    printf(" Введите слово: ");
 
     if (scanf("%1023[^\n]", word) != 1)
     {
@@ -360,7 +337,7 @@ TreeErr_t AkinatorDescribeWord(const Tree_t* tree, const char* word)
 
     if (node == NULL)
     {
-        printf(BLUE "РўР°РєРѕРіРѕ СЃР»РѕРІР° РЅРµС‚!\n" RESET_CLR);
+        printf(BLUE "Такого слова нет!\n" RESET_CLR);
         StackDtor(&stack);
         return TREE_SUCCESS;
     }
@@ -371,7 +348,7 @@ TreeErr_t AkinatorDescribeWord(const Tree_t* tree, const char* word)
         return error;
     }
 
-    printf(BLUE "РћРїСЂРµРґРµР»РµРЅРёРµ %s:\n" RESET_CLR " %s ", word, word);
+    printf(BLUE "Определение %s:\n" RESET_CLR " %s ", word, word);
 
     if ((error = PrintStackWordPath(&stack)))
     {
@@ -467,7 +444,7 @@ void PrintConditionFormatted(TreeStep_t* step, size_t stack_size)
     else if (stack_size < 2)
     {
         PrintCondition(step);
-        printf(" Рё ");
+        printf(" и ");
         return;
     }
     else
@@ -487,7 +464,7 @@ void PrintCondition(TreeStep_t* step)
     }
     else if (step->connection == 'n')
     {
-        printf("РЅРµ %s", step->node->data);
+        printf("не %s", step->node->data);
     }
 }
 

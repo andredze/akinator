@@ -5,6 +5,8 @@
 
 #include "tree_types.h"
 #include <time.h>
+#include <windows.h>
+#include <dir.h>
 #include <sys/stat.h>
 #include <stdarg.h>
 
@@ -80,10 +82,15 @@ int PrintArg(
     int*        is_first_arg,
     FILE*       fp);
 
+int ConvertDataToUTF8(const char* src, char* dest);
+
 //——————————————————————————————————————————————————————————————————————————————————————————
 
 const int MAX_NODE_NAME_LEN = 32;
 const int MAX_LABEL_LEN     = 256;
+
+const int SRC_LOCALE        = 1251;
+const int DEST_LOCALE       = CP_UTF8;
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
