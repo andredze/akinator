@@ -8,18 +8,9 @@
 
 int main()
 {
-
-//     txSpeak ("TX Library is cool!");
-//
-//     txSpeak ("\vДобрый вечер, котики. Вы все мыши. Goog evening, kittens. You are all mices.");
-//
 //     txSpeak ("<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='EN'>"  // SSML format
 //             "Goog evening, kittens. You are all mices."
 //             "</speak>");
-
-    Speak(NULL, "писюн");
-    SpeakFlush();
-
     AkinatorCtx_t ak_ctx = {};
 
     do {

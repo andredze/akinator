@@ -49,6 +49,9 @@ TreeErr_t AkinatorAddWord(Tree_t* tree, TreeNode_t* guess_node)
     guess_node->right = new_guessed_node;
     guess_node->left  = new_word_node;
 
+    Speak(BLUE, "Слово добавлено в базу\n");
+    SpeakFlush();
+
     DEBUG_TREE_CHECK(tree, "ERROR DUMP AKINATOR ADD WORD");
     TREE_CALL_DUMP  (tree, "DUMP AFTER AKINATOR ADD WORD %s", new_word_node->data);
 
@@ -66,10 +69,13 @@ TreeErr_t AkinatorGetNewWord(char** new_word_data)
 
     Speak(NULL, "Кто это был? Это был ");
 
-    if (scanf("%1023[^\n]%n", new_word_buf, &new_word_len) != 1)
+    SpeakFlush();
+
+    while (scanf("%1023[^\n]%n", new_word_buf, &new_word_len) != 1)
     {
-        PRINTERR("Input error");
-        return TREE_INVALID_INPUT;
+        CleanBuffer();
+        Speak(RED, "Ошибка ввода, введите еще раз\n");
+        SpeakFlush();
     }
 
     CleanBuffer();
@@ -99,13 +105,20 @@ TreeErr_t AkinatorGetCondition(char** condition_data, const char* guess_word, co
 
     Speak(NULL, "В отличие от %s %s ", guess_word, new_word);
 
-    if (scanf("%1023[^\n]%n", condition_buf, &condition_len) != 1)
+    SpeakFlush();
+
+    while (scanf("%1023[^\n]%n", condition_buf, &condition_len) != 1)
     {
-        PRINTERR("Input error");
-        return TREE_INVALID_INPUT;
+        CleanBuffer();
+        Speak(RED, "Ошибка ввода, введите еще раз\n");
+        SpeakFlush();
     }
 
     CleanBuffer();
+
+    SpeakOnly("%s", condition_buf);
+
+    SpeakFlush();
 
     char* condition = strdup(condition_buf);
 
@@ -125,8 +138,13 @@ int ConditionHasNegatives(char* condition)
 {
     assert(condition != NULL);
 
-    if (strstr(condition, "не ") != NULL || strstr(condition, " не ") != NULL)
+    if (strncmp(condition, "не ", 3) == 0 ||
+        strncmp(condition, "Не ", 3) == 0 ||
+        strstr(condition, " не ")    != NULL)
     {
+        Speak(RED, "Пожалуйста, введите еще раз, не используя отрицание\n");
+        SpeakFlush();
+
         free(condition);
         return 1;
     }

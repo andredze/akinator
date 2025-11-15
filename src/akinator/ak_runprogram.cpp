@@ -67,6 +67,8 @@ TreeErr_t AkinatorExecuteProgram(AkinatorCtx_t* ak_ctx)
                 return err;
             }
 
+            cprintf(BLUE, "Нажми [enter]\n");
+
             int c = getchar();
 
             if (!(isspace(c)))
@@ -92,16 +94,14 @@ AkinatorCmd_t GetUserCommand(AkinatorCtx_t* ak_ctx)
     Speak(BLUE, "Введите команду");
     cprintf(BLUE, " из списка\n");
 
-    // TODO: цикл по константному массиву вместо хард кодинга
-    printf("    [у] - угадывание слова,\n"       // guess
-           "    [с] - сравнение слов,\n"         // compare
-           "    [о] - определение слова,\n"      // describe
-           "    [ч] - загрузить базу данных,\n"  // read
-           "    [з] - записать в базу данных,\n" // write
-           "    [в] - выход из программы \n"     // exit
-           "\n");
+    for (int i = 0; i < AK_EXIT + 1; i++)
+    {
+        printf("    [%s] - %s,\n",
+                AK_CMD_CASES_TABLE[i].letter_cmd,
+                AK_CMD_CASES_TABLE[i].description_cmd);
+    }
 
-    cprintf(BLUE, "Команда: ");
+    cprintf(BLUE, "\nКоманда: ");
 
     SpeakFlush();
 
@@ -117,31 +117,18 @@ AkinatorCmd_t GetUserCommand(AkinatorCtx_t* ak_ctx)
 
     // DPRINTF("answer is \"%s\"\n", answer);
 
-// TODO: цикл по массиву cmd_cases
-    if (strcmp(answer, "у") == 0)
-    {
-        return AK_GUESS;
-    }
-    if (strcmp(answer, "с") == 0)
-    {
-        return AK_COMPARE;
-    }
-    if (strcmp(answer, "о") == 0)
-    {
-        return AK_DESCRIBE;
-    }
-    if (strcmp(answer, "ч") == 0)
-    {
-        return AK_READ_DATA;
-    }
-    if (strcmp(answer, "з") == 0)
-    {
-        return AK_WRITE_DATA;
-    }
-    if (strcmp(answer, "в") == 0)
+    if (strcmp(answer, AK_CMD_CASES_TABLE[AK_EXIT].letter_cmd) == 0)
     {
         ak_ctx->user_active = 0;
         return AK_EXIT;
+    }
+
+    for (int i = 0; i < AK_CMD_COUNT - 1; i++)
+    {
+        if (strcmp(answer, AK_CMD_CASES_TABLE[i].letter_cmd) == 0)
+        {
+            return AK_CMD_CASES_TABLE[i].cmd;
+        }
     }
 
     Speak(RED, "Нераспознанная команда, попробуйте еще раз\n");
@@ -164,7 +151,7 @@ TreeErr_t AkinatorExecuteCmd(AkinatorCtx_t* ak_ctx)
 
     TreeErr_t err = TREE_SUCCESS;
 
-    if ((err = AK_EXECUTE_CMD_TABLE[ak_ctx->cmd](ak_ctx)))
+    if ((err = AK_CMD_CASES_TABLE[ak_ctx->cmd].execute_cmd(ak_ctx)))
     {
         return err;
     }

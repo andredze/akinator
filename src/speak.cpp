@@ -27,6 +27,34 @@ int Speak(const char* const color, const char* fmt, ...)
         vcprintf(color, fmt, args);
     }
 
+    int ret = vSpeakOnly(fmt, args);
+
+    va_end(args);
+
+    return ret;
+}
+
+//------------------------------------------------------------------------------------------
+
+int SpeakOnly(const char* fmt, ...)
+{
+    va_list args = {};
+
+    va_start(args, fmt);
+
+    int ret = vSpeakOnly(fmt, args);
+
+    va_end(args);
+
+    return ret;
+}
+
+//------------------------------------------------------------------------------------------
+
+int vSpeakOnly(const char* fmt, va_list args)
+{
+    DPRINTF("Entering speak only\n");
+
     int written = 0;
 
     char fmt_buffer[FMT_BUFFER_SIZE] = {};
@@ -50,8 +78,6 @@ int Speak(const char* const color, const char* fmt, ...)
 
     buffer_pos += written;
 
-    va_end(args);
-
     // DPRINTF("speak_buf = %s\n", speak_buffer);
 
     return 0;
@@ -72,9 +98,11 @@ int SpeakFlush()
 
     char tx_speak_buffer[SPEAK_BUFFER_SIZE * 2] = {};
 
-    sprintf(tx_speak_buffer, "%s", speak_buffer); // <speak><prosody rate=\"fast\"> </prosody></speak>
+    sprintf(tx_speak_buffer, "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='RU'><prosody rate=\"fast\">"
+                             "%s"
+                             "</prosody></speak>", speak_buffer); // <speak><prosody rate=\"fast\"> </prosody></speak>
 
-    if (txSpeak(tx_speak_buffer) == EOF)
+    if (txSpeak("%s", tx_speak_buffer) == EOF)
     {
         PRINTERR("txSpeak failed");
         return EOF;

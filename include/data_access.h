@@ -10,11 +10,11 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-void      SkipSpaces         (char* buffer, long int* pos);
-int       SkipLetter         (char* buffer, long int* pos, char letter);
-TreeErr_t ReadNodeData       (char* buffer, long int* pos, char** node_data);
-TreeErr_t ReadNodeDataStrChr (char* buffer, long int* pos, char** node_data);
-TreeErr_t ReadNode           (Tree_t* tree, TreeNode_t** node, char* buffer, long int* pos, TreeNode_t* parent);
+void      SkipSpaces         (char* buffer, long long int* pos);
+int       SkipLetter         (char* buffer, long long int* pos, char letter);
+TreeErr_t ReadNodeData       (char* buffer, long long int* pos, char** node_data);
+TreeErr_t ReadNodeDataStrChr (char* buffer, long long int* pos, char** node_data);
+TreeErr_t ReadNode           (Tree_t* tree, TreeNode_t** node, char* buffer, long long int* pos, TreeNode_t* parent);
 TreeErr_t TreeReadData       (Tree_t* tree, const char* data_file_path);
 TreeErr_t TreeWriteData      (const Tree_t* tree, const char* file_path);
 
