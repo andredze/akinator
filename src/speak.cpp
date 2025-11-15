@@ -12,7 +12,7 @@ static size_t buffer_pos = 0;
 
 int Speak(const char* const color, const char* fmt, ...)
 {
-    DPRINTF("Entering speak\n");
+    // DPRINTF("Entering speak\n");
 
     va_list args = {};
 
@@ -53,7 +53,7 @@ int SpeakOnly(const char* fmt, ...)
 
 int vSpeakOnly(const char* fmt, va_list args)
 {
-    DPRINTF("Entering speak only\n");
+    // DPRINTF("Entering speak only\n");
 
     int written = 0;
 
@@ -87,7 +87,7 @@ int vSpeakOnly(const char* fmt, va_list args)
 
 int SpeakFlush()
 {
-    DPRINTF("FLUSH: speak_buf = %s\n", speak_buffer);
+    // DPRINTF("FLUSH: speak_buf = %s\n", speak_buffer);
 
     if (buffer_pos == 0)
     {

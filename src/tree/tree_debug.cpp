@@ -53,7 +53,7 @@ TreeErr_t TreeDump(const Tree_t*         tree,
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t TreeReadBufferDump(const char* buffer, long int pos, const char* fmt, ...)
+TreeErr_t TreeReadBufferDump(const char* buffer, ssize_t pos, const char* fmt, ...)
 {
     assert(fmt != NULL);
 
