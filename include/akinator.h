@@ -85,22 +85,24 @@ int       ConditionHasNegatives (char* condition);
 //——————————————————————————————————————————————————————————————————————————————————————————
 
 TreeErr_t AkinatorCompareWords    (Tree_t* tree, const char* word1, const char* word2);
-TreeErr_t AkinatorDescribeWord    (const Tree_t* tree, const char* word);
-int       TreeStepsEqual          (TreeStep_t* step1, TreeStep_t* step2);
-
-TreeErr_t PrintStackWordPath      (Stack_t* stack);
-void      PrintCondition          (TreeStep_t* step);
-void      PrintConditionFormatted (TreeStep_t* step, size_t stack_size);
 
 void      PrintComparison           (const char* word1, const char* word2,
                                      Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack);
 TreeErr_t ConstructComparisonStacks (Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack);
-TreeErr_t GetCommonConditionsStack  (const Tree_t* tree, Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack);
+TreeErr_t GetCommonConditionsStack  (const Tree_t* tree, Stack_t* stack1, Stack_t* stack2, StaÛck_t* common_stack);
 void      DestroyComparisonStacks   (Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack);
 TreeErr_t GetComparisonStacks       (Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack,
                                      TreeNode_t* node1, TreeNode_t* node2, Tree_t* tree);
 
 TreeNode_t* TreeSearch            (TreeNode_t* node, const char* word);
+int       TreeStepsEqual          (TreeStep_t* step1, TreeStep_t* step2);
+
+//——————————————————————————————————————————————————————————————————————————————————————————
+
+TreeErr_t AkinatorDescribeWord    (const Tree_t* tree, const char* word);
+TreeErr_t PrintStackWordPath      (Stack_t* stack);
+void      PrintCondition          (TreeStep_t* step);
+void      PrintConditionFormatted (TreeStep_t* step, size_t stack_size);
 TreeErr_t   GetStackWordPath      (const Tree_t* tree, TreeNode_t* leaf, Stack_t* stack);
 
 //——————————————————————————————————————————————————————————————————————————————————————————
