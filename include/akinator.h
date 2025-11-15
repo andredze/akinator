@@ -3,7 +3,15 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
+#ifdef TREE_DEBUG
+    #define DEBUG
+#endif
+
+//——————————————————————————————————————————————————————————————————————————————————————————
+
 #include "tree_commands.h"
+#include "colors.h"
+#include "speak.h"
 #include "stack.h"
 #include <time.h>
 #include <string.h>

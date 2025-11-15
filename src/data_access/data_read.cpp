@@ -2,6 +2,17 @@
 
 //------------------------------------------------------------------------------------------
 
+#ifdef TREE_DEBUG
+    #define BUFFER_DUMP(buffer, pos, fmt, ...)                  \
+        BEGIN                                                   \
+        TreeReadBufferDump(buffer, pos, fmt, ##__VA_ARGS__);    \
+        END
+#else
+    #define BUFFER_DUMP(buffer, pos, fmt, ...) ;
+#endif
+
+//------------------------------------------------------------------------------------------
+
 TreeErr_t TreeReadData(Tree_t* tree, const char* data_file_path)
 {
     DEBUG_TREE_CHECK(tree, "ERROR BEFORE TREE READ DATA");
@@ -56,14 +67,14 @@ TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, long int* pos,
     {
         (*pos)++;
         SkipSpaces(buffer, pos);
-        TreeReadBufferDump(buffer, *pos, "BUFFER DUMP SKIPPING OPENING BRACKET");
+        BUFFER_DUMP(buffer, *pos, "BUFFER DUMP SKIPPING OPENING BRACKET");
 
         char* data = NULL;
 
         if ((error = ReadNodeDataStrChr(buffer, pos, &data)))
             return error;
 
-        TreeReadBufferDump(buffer, *pos, "BUFFER DUMP AFTER READING %s", data);
+        BUFFER_DUMP(buffer, *pos, "BUFFER DUMP AFTER READING %s", data);
 
         if ((error = TreeNodeCtor(tree, data, node, parent)))
             return error;
@@ -73,25 +84,25 @@ TreeErr_t ReadNode(Tree_t* tree, TreeNode_t** node, char* buffer, long int* pos,
         if ((error = ReadNode(tree, &(*node)->left,  buffer, pos, *node)))
             return error;
 
-        TreeReadBufferDump(buffer, *pos, "BUFFER DUMP AFTER READING NODE LEFT TO %s", data);
+        BUFFER_DUMP(buffer, *pos, "BUFFER DUMP AFTER READING NODE LEFT TO %s", data);
 
         if ((error = ReadNode(tree, &(*node)->right, buffer, pos, *node)))
             return error;
 
-        TreeReadBufferDump(buffer, *pos, "BUFFER DUMP AFTER READING NODE RIGHT TO %s", data);
+        BUFFER_DUMP(buffer, *pos, "BUFFER DUMP AFTER READING NODE RIGHT TO %s", data);
 
         if (SkipLetter(buffer, pos, ')'))
             return TREE_INVALID_INPUT;
 
         SkipSpaces(buffer, pos);
 
-        TreeReadBufferDump(buffer, *pos, "BUFFER DUMP AFTER SKIPPING CLOSING BRACKET after %s", data);
+        BUFFER_DUMP(buffer, *pos, "BUFFER DUMP AFTER SKIPPING CLOSING BRACKET after %s", data);
     }
     else if (strncmp(&buffer[*pos], "nil", 3) == 0)
     {
         (*pos) += 3;
         SkipSpaces(buffer, pos);
-        TreeReadBufferDump(buffer, *pos, "BUFFER DUMP AFTER READING NULL");
+        BUFFER_DUMP(buffer, *pos, "BUFFER DUMP AFTER READING NULL");
     }
     else
     {

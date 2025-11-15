@@ -14,12 +14,15 @@ CXXFLAGS =  -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef 							\
 SOURCES = src/main.cpp \
 		  src/akinator/ak_runprogram.cpp \
 		  src/akinator/ak_addword.cpp \
-		  src/akinator/ak_definitions.cpp \
+		  src/akinator/ak_describe.cpp \
+		  src/akinator/ak_compare.cpp \
 		  src/akinator/ak_guess.cpp \
 		  src/data_access/data_read.cpp \
 		  src/data_access/data_write.cpp \
 		  src/tree/tree_commands.cpp \
-		  src/stack.cpp
+		  src/stack.cpp \
+		  src/colors.cpp \
+		  src/speak.cpp
 
 ifdef DEBUG
 CXXFLAGS += -DTREE_DEBUG

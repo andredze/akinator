@@ -55,7 +55,10 @@ TreeErr_t AkinatorGuessWord(Tree_t* tree)
 
     while (node != NULL)
     {
-        printf("Твой персонаж %s? (да/нет): ", node->data);
+        Speak(NULL, "Твой персонаж %s?", node->data);
+        printf(" (да/нет): ");
+
+        SpeakFlush();
 
         int answer = GetUserAnswer();
 
@@ -79,7 +82,8 @@ TreeErr_t AkinatorGuessWord(Tree_t* tree)
         }
         else
         {
-            printf("Введи ответ в виде (да/нет/выход)!\n");
+            Speak(RED, "Введи ответ в виде (да/нет/выход)!\n");
+            SpeakFlush();
             continue;
         }
     }
@@ -97,12 +101,14 @@ TreeErr_t AkinatorMakeGuess(Tree_t* tree, TreeNode_t** node_ptr, int answer)
     switch (answer)
     {
         case 'y':
-            printf("Я угадал бэумс\n");
+            Speak(GREEN, "Я угадал бэумс\n");
+            SpeakFlush();
             *node_ptr = tree->dummy;
             break;
 
         case 'n':
-            printf("Капец ты кого там загадал(-а)\n");
+            Speak(BLUE, "Капец ты кого там загадал(-а)\n");
+            SpeakFlush();
             return AkinatorAddWord(tree, *node_ptr);
 
         default:
@@ -135,7 +141,7 @@ int GetShortAnswer(char* str)
 {
     assert(str != NULL);
 
-    if (strcmp(str, "да") == 0)
+    if (strcmp(str, "да") == 0) // TODO: const POSITIVE ANSWER
     {
         return 'y';
     }

@@ -5,6 +5,8 @@
 
 #include "tree_commands.h"
 #include <ctype.h>
+#include <sys/stat.h>
+#include <time.h>
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 

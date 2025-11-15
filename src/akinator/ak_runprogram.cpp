@@ -55,7 +55,10 @@ TreeErr_t AkinatorExecuteProgram(AkinatorCtx_t* ak_ctx)
 
     while (ak_ctx->user_active)
     {
-        ak_ctx->cmd = GetUserCommand(ak_ctx);
+        while (ak_ctx->cmd == AK_UNKNOWN_CMD)
+        {
+            ak_ctx->cmd = GetUserCommand(ak_ctx);
+        }
 
         if (ak_ctx->user_active)
         {
@@ -63,16 +66,15 @@ TreeErr_t AkinatorExecuteProgram(AkinatorCtx_t* ak_ctx)
             {
                 return err;
             }
-        }
 
-        if (ak_ctx->user_active)
-        {
             int c = getchar();
 
             if (!(isspace(c)))
             {
                 CleanBuffer();
             }
+
+            ak_ctx->cmd = AK_UNKNOWN_CMD;
         }
     }
 
@@ -87,14 +89,21 @@ AkinatorCmd_t GetUserCommand(AkinatorCtx_t* ak_ctx)
 {
     char answer[MAX_INPUT_LEN] = {};
 
-    printf( BLUE "Введите команду из списка " RESET_CLR "\n"
-            "    [у] - угадывание слова,\n"       // guess
-            "    [с] - сравнение слов,\n"         // compare
-            "    [о] - определение слова,\n"      // describe
-            "    [ч] - загрузить базу данных,\n"  // read
-            "    [з] - записать в базу данных,\n" // write
-            "    [в] - выход из программы \n"     // exit
-            "\n" BLUE "Команда: " RESET_CLR);
+    Speak(BLUE, "Введите команду");
+    cprintf(BLUE, " из списка\n");
+
+    // TODO: цикл по константному массиву вместо хард кодинга
+    printf("    [у] - угадывание слова,\n"       // guess
+           "    [с] - сравнение слов,\n"         // compare
+           "    [о] - определение слова,\n"      // describe
+           "    [ч] - загрузить базу данных,\n"  // read
+           "    [з] - записать в базу данных,\n" // write
+           "    [в] - выход из программы \n"     // exit
+           "\n");
+
+    cprintf(BLUE, "Команда: ");
+
+    SpeakFlush();
 
     if (scanf("%63s", answer) != 1)
     {
@@ -108,6 +117,7 @@ AkinatorCmd_t GetUserCommand(AkinatorCtx_t* ak_ctx)
 
     // DPRINTF("answer is \"%s\"\n", answer);
 
+// TODO: цикл по массиву cmd_cases
     if (strcmp(answer, "у") == 0)
     {
         return AK_GUESS;
@@ -133,6 +143,9 @@ AkinatorCmd_t GetUserCommand(AkinatorCtx_t* ak_ctx)
         ak_ctx->user_active = 0;
         return AK_EXIT;
     }
+
+    Speak(RED, "Нераспознанная команда, попробуйте еще раз\n");
+    SpeakFlush();
 
     return AK_UNKNOWN_CMD;
 }
@@ -180,9 +193,12 @@ TreeErr_t AkinatorExecuteReadData(AkinatorCtx_t* ak_ctx)
 
     char file_path[MAX_INPUT_LEN] = {};
 
-    printf(BLUE "Считывание дерева с базы данных:\n" RESET_CLR);
+    Speak(BLUE, "Считывание дерева");
+    cprintf(BLUE, " с базы данных:\n");
 
-    printf(" Введите путь к базе данных: ");
+    cprintf(NULL, " Введите путь к базе данных: ");
+
+    SpeakFlush();
 
     if (scanf("%1023[^\n]", file_path) != 1)
     {
@@ -199,7 +215,9 @@ TreeErr_t AkinatorExecuteReadData(AkinatorCtx_t* ak_ctx)
         return error;
     }
 
-    printf(BLUE "База данных \"%s\" успешно считана!\n" RESET_CLR, file_path);
+    Speak(BLUE, "База данных \"%s\" успешно считана!\n", file_path);
+
+    SpeakFlush();
 
     return TREE_SUCCESS;
 }
@@ -214,9 +232,12 @@ TreeErr_t AkinatorExecuteWriteData(AkinatorCtx_t* ak_ctx)
 
     char file_path[MAX_INPUT_LEN] = {};
 
-    printf(BLUE "Запись дерева в базу данных:\n" RESET_CLR);
+    Speak(BLUE, "Запись дерева");
+    cprintf(BLUE, " в базу данных:\n");
 
-    printf(" Введите путь к базе данных: ");
+    cprintf(NULL, " Введите путь к базе данных: ");
+
+    SpeakFlush();
 
     if (scanf("%1023[^\n]", file_path) != 1)
     {
@@ -233,7 +254,9 @@ TreeErr_t AkinatorExecuteWriteData(AkinatorCtx_t* ak_ctx)
         return error;
     }
 
-    printf(BLUE "База данных \"%s\" успешно записана!\n" RESET_CLR, file_path);
+    Speak(BLUE, "База данных \"%s\" успешно записана!\n", file_path);
+
+    SpeakFlush();
 
     return TREE_SUCCESS;
 }

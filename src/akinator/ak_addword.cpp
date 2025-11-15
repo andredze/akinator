@@ -28,6 +28,8 @@ TreeErr_t AkinatorAddWord(Tree_t* tree, TreeNode_t* guess_node)
         re_input_condition = ConditionHasNegatives(condition_data);
     }
 
+    SpeakFlush();
+
     TreeNode_t* new_word_node    = NULL;
     TreeNode_t* new_guessed_node = NULL;
 
@@ -62,7 +64,7 @@ TreeErr_t AkinatorGetNewWord(char** new_word_data)
     char new_word_buf[MAX_INPUT_LEN] = "";
     int  new_word_len = 0;
 
-    printf("Кто это был? Это был ");
+    Speak(NULL, "Кто это был? Это был ");
 
     if (scanf("%1023[^\n]%n", new_word_buf, &new_word_len) != 1)
     {
@@ -95,7 +97,7 @@ TreeErr_t AkinatorGetCondition(char** condition_data, const char* guess_word, co
     char condition_buf[MAX_INPUT_LEN] = "";
     int  condition_len = 0;
 
-    printf("В отличие от %s %s ", guess_word, new_word);
+    Speak(NULL, "В отличие от %s %s ", guess_word, new_word);
 
     if (scanf("%1023[^\n]%n", condition_buf, &condition_len) != 1)
     {
