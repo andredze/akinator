@@ -61,6 +61,82 @@ StackErr_t StackCtor(Stack_t* stack, size_t capacity)
 
 //------------------------------------------------------------------------------------------
 
+StackErr_t StackGetTop(Stack_t* stack, item_t* element)
+{
+    STACK_OK(stack, reason_start);
+
+    if (element == NULL)
+    {
+        DPRINTF("Error: nullptr given");
+        return STACK_IS_NULL;
+    }
+
+    *element = stack->data[stack->size - 1];
+
+    return STACK_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+StackErr_t StackGetSize(Stack_t* stack, size_t* size)
+{
+    STACK_OK(stack, reason_start);
+
+    if (size == NULL)
+    {
+        DPRINTF("Error: nullptr given");
+        return STACK_IS_NULL;
+    }
+
+    *size = stack->size;
+
+    return STACK_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+StackErr_t StackGetElement(Stack_t* stack, size_t index, item_t* element)
+{
+    STACK_OK(stack, reason_start);
+
+    if (element == NULL)
+    {
+        DPRINTF("Error: nullptr given");
+        return STACK_IS_NULL;
+    }
+
+    if (index >= stack->capacity)
+    {
+        DPRINTF("Given index is bigger than stack size");
+        return STACK_INDEX_TOOBIG;
+    }
+
+    *element = stack->data[index];
+
+    return STACK_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+StackErr_t StackSetElement(Stack_t* stack, size_t index, item_t element)
+{
+    STACK_OK(stack, reason_start);
+
+    if (index >= stack->capacity)
+    {
+        DPRINTF("Given index is bigger than stack size");
+        return STACK_INDEX_TOOBIG;
+    }
+
+    stack->data[index] = element;
+
+    STACK_OK(stack, reason_end);
+
+    return STACK_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
 StackErr_t StackReallocUp(Stack_t* stack)
 {
     STACK_OK(stack, reason_start);

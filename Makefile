@@ -1,17 +1,18 @@
-CXX = g++
+CC=g++
 
-CXXFLAGS =  -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef 							\
-			-Wfloat-equal -Winline -Wunreachable-code -Wmissing-declarations 						\
-			-Wmissing-include-dirs -Wswitch-default -Weffc++ 										\
-			-Wmain -Wextra -Wall -g -pipe -fexceptions -Wcast-qual -Wconversion 					\
-			-Wctor-dtor-privacy -Wempty-body -Wformat-security -Wformat=2 -Wignored-qualifiers 		\
-			-Wlogical-op -Wno-missing-field-initializers -Wnon-virtual-dtor -Woverloaded-virtual	\
-			-Wpointer-arith -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing 						\
-			-Wstrict-null-sentinel -Wtype-limits -Wwrite-strings -Werror=vla -D_DEBUG 				\
-			-D_EJUDGE_CLIENT_SIDE \
-			-Iinclude -Iinclude/tree
+CXXFLAGS = -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef 							    \
+		   -Wfloat-equal -Winline -Wunreachable-code -Wmissing-declarations 						\
+		   -Wmissing-include-dirs -Wswitch-default -Weffc++ 										\
+		   -Wmain -Wextra -Wall -g -pipe -fexceptions -Wcast-qual -Wconversion 						\
+		   -Wctor-dtor-privacy -Wempty-body -Wformat-security -Wformat=2 -Wignored-qualifiers 		\
+		   -Wlogical-op -Wno-missing-field-initializers -Wnon-virtual-dtor -Woverloaded-virtual		\
+		   -Wpointer-arith -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing 						\
+		   -Wstrict-null-sentinel -Wtype-limits -Wwrite-strings -Werror=vla -D_DEBUG 				\
+		   -D_EJUDGE_CLIENT_SIDE 																	\
+		   -Iinclude -Iinclude/tree
 
 SOURCES = src/main.cpp \
+		  src/TXLib.cpp \
 		  src/akinator/ak_runprogram.cpp \
 		  src/akinator/ak_addword.cpp \
 		  src/akinator/ak_describe.cpp \
@@ -26,15 +27,20 @@ SOURCES = src/main.cpp \
 
 ifdef DEBUG
 CXXFLAGS += -DTREE_DEBUG
-SOURCES  += src/tree/tree_debug.cpp
+SOURCES += src/tree/tree_debug.cpp
 endif
 
-EXECUTABLE = run
+OBJS = $(SOURCES:src/%.cpp=obj/%.o)
 
-LOG_DIR = log/*
+TARGET = run
 
-all:
-	$(CXX) $(CXXFLAGS) $(SOURCES) -o $(EXECUTABLE)
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CC) $^ -o $@
+
+obj/%.o: src/%.cpp
+	$(CC) $(CXXFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf $(EXECUTABLE) $(LOG_DIR)
+	rm -rf src/*.o src/tree/*.o src/akinator/*.o src/data_access/*.o

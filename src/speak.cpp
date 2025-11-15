@@ -1,4 +1,5 @@
-#define TX_USE_SPEAK
+#define   TX_USE_SPEAK
+#define   TX_COMPILED
 #include <TXLib.h>
 
 #include "speak.h"

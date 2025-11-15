@@ -6,27 +6,23 @@ TreeErr_t AkinatorExecuteDescribe(AkinatorCtx_t* ak_ctx)
 {
     assert(ak_ctx != NULL);
 
-    TreeErr_t error = TREE_SUCCESS;
-
-    char word[MAX_INPUT_LEN] = {};
+    TreeErr_t   error = TREE_SUCCESS;
+    TreeNode_t* node  = NULL;
+    Stack_t     stack = {};
 
     Speak(BLUE, "Определение слова:\n");
+    SpeakFlush();
 
     cprintf(NULL, " Введите слово: ");
 
-    SpeakFlush();
-
-    if (scanf("%1023[^\n]", word) != 1)
+    if ((error = GetPathStack(&ak_ctx->tree, &node, &stack)))
     {
-        PRINTERR("Scanf failed");
-        return TREE_INVALID_INPUT;
+        return error;
     }
-
-    CleanBuffer();
 
     printf("\n");
 
-    if ((error = AkinatorDescribeWord(&ak_ctx->tree, word)))
+    if ((error = AkinatorDescribeWord(&stack, node)))
     {
         return error;
     }
@@ -36,45 +32,22 @@ TreeErr_t AkinatorExecuteDescribe(AkinatorCtx_t* ak_ctx)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t AkinatorDescribeWord(const Tree_t* tree, const char* word)
+TreeErr_t AkinatorDescribeWord(Stack_t* stack, const TreeNode_t* node)
 {
-    assert(tree != NULL);
-    assert(word != NULL);
-
-    Stack_t stack = {};
+    assert(stack != NULL);
+    assert(node  != NULL);
 
     TreeErr_t error = TREE_SUCCESS;
 
-    if (StackCtor(&stack, STACK_MIN_CAPACITY))
-    {
-        return TREE_STACK_ERR;
-    }
-
-    TreeNode_t* node = TreeSearch(tree->dummy->right, word);
-
-    if (node == NULL)
-    {
-        Speak(RED, "Такого слова нет!\n");
-        SpeakFlush();
-        StackDtor(&stack);
-        return TREE_SUCCESS;
-    }
-
-    if ((error = GetStackWordPath(tree, node, &stack)))
-    {
-        StackDtor(&stack);
-        return error;
-    }
-
-    Speak(BLUE, "Определение %s:\n", word);
+    Speak(BLUE, "Определение %s:\n", node->data);
     SpeakFlush();
 
-    Speak(NULL, " %s ", word);
+    Speak(NULL, " %s ", node->data);
 
-    if ((error = PrintStackWordPath(&stack)))
+    if ((error = PrintStackWordPath(stack, stack->size - 1, 0)))
     {
         SpeakFlush();
-        StackDtor(&stack);
+        StackDtor(stack);
         return error;
     }
 
@@ -82,7 +55,7 @@ TreeErr_t AkinatorDescribeWord(const Tree_t* tree, const char* word)
 
     printf("\n");
 
-    if (StackDtor(&stack))
+    if (StackDtor(stack))
     {
         return TREE_STACK_ERR;
     }
@@ -92,21 +65,31 @@ TreeErr_t AkinatorDescribeWord(const Tree_t* tree, const char* word)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t PrintStackWordPath(Stack_t* stack)
+TreeErr_t PrintStackWordPath(Stack_t* stack, size_t start_pos, size_t end_pos)
 {
     assert(stack != NULL);
 
-    while (0 < stack->size)
-    {
-        TreeStep_t cur_step = {};
+    size_t     cur_pos  = start_pos;
+    TreeStep_t cur_step = {};
 
-        if (StackPop(stack, &cur_step))
+    while (cur_pos >= end_pos)
+    {
+        // DPRINTF("cur_pos = %zu; end_pos = %zu;\n", cur_pos, end_pos);
+
+        if (StackGetElement(stack, cur_pos, &cur_step))
         {
             PRINTERR("Stack pop failed");
             return TREE_STACK_ERR;
         }
 
-        PrintConditionFormatted(&cur_step, stack->size);
+        PrintConditionFormatted(&cur_step, cur_pos - end_pos);
+
+        if (cur_pos == 0)
+        {
+            break;
+        }
+
+        cur_pos--;
     }
 
     return TREE_SUCCESS;
@@ -114,58 +97,19 @@ TreeErr_t PrintStackWordPath(Stack_t* stack)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t GetStackWordPath(const Tree_t* tree, TreeNode_t* node, Stack_t* stack)
+void PrintConditionFormatted(TreeStep_t* step, size_t pos)
 {
-    assert(node  != NULL);
-    assert(stack != NULL);
-
-    DEBUG_TREE_CHECK(tree, "ERROR DUMP BEFORE STACK GET WORD PATH");
-
-    char connection = '\0';
-
-    while (node != tree->dummy->right)
-    {
-        if (node->parent->right == node)
-        {
-            connection = 'n';
-        }
-        else
-        {
-            connection = 'y';
-        }
-
-        // DPRINTF("parent of %s: %s, %p, connection = %c;\n",
-        //         node->data,
-        //         node->parent->data,
-        //         node->parent,
-        //         connection);
-
-        if (StackPush(stack, {node->parent, connection}))
-        {
-            return TREE_STACK_ERR;
-        }
-
-        node = node->parent;
-    }
-
-    return TREE_SUCCESS;
-}
-
-//------------------------------------------------------------------------------------------
-
-void PrintConditionFormatted(TreeStep_t* step, size_t stack_size)
-{
-    if (stack_size > STACK_SIZE_LIMIT)
+    if (pos > STACK_SIZE_LIMIT)
     {
         return;
     }
-    else if (stack_size < 1)
+    else if (pos < 1)
     {
         PrintCondition(step);
         Speak(NULL, "\n");
         return;
     }
-    else if (stack_size < 2)
+    else if (pos < 2)
     {
         PrintCondition(step);
         Speak(NULL, " и ");

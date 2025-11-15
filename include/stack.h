@@ -137,7 +137,8 @@ typedef enum StackErr
     STACK_CALLOC_ERROR           = 9,
     STACK_REALLOC_ERROR          = 10,
     STACK_FILE_OPENING_ERROR     = 11,
-    STACK_SIZE_IS_ZERO           = 12
+    STACK_SIZE_IS_ZERO           = 12,
+    STACK_INDEX_TOOBIG           = 13
 } StackErr_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————
@@ -147,7 +148,7 @@ typedef struct VarInfo
     const char* struct_name;
     const char* file_name;
     const char* function;
-    int line;
+    int         line;
 } VarInfo_t;
 
 //——————————————————————————————————————————————————————————————————————————————————————————
@@ -170,9 +171,7 @@ typedef struct Stack
 
 //——————————————————————————————————————————————————————————————————————————————————————————
 
-StackErr_t StackCtor          (Stack_t* stack, size_t  capacity);
-StackErr_t StackPush          (Stack_t* stack, item_t  item);
-StackErr_t StackPop           (Stack_t* stack, item_t* item);
+StackErr_t StackCtor          (Stack_t* stack, size_t capacity);
 StackErr_t StackReallocUp     (Stack_t* stack);
 StackErr_t StackReallocDown   (Stack_t* stack);
 StackErr_t StackDtor          (Stack_t* stack);
@@ -181,6 +180,13 @@ StackErr_t StackCheckCanaries (Stack_t* stack);
 StackErr_t StackCheckHash     (Stack_t* stack);
 StackErr_t StackVerify        (Stack_t* stack);
 size_t     StackHash          (Stack_t* stack);
+
+StackErr_t StackPush          (Stack_t* stack,               item_t  item   );
+StackErr_t StackPop           (Stack_t* stack,               item_t* item   );
+StackErr_t StackSetElement    (Stack_t* stack, size_t index, item_t  element);
+StackErr_t StackGetElement    (Stack_t* stack, size_t index, item_t* element);
+StackErr_t StackGetTop        (Stack_t* stack,               item_t* element);
+StackErr_t StackGetSize       (Stack_t* stack,               size_t* size   );
 
 int        StackErrToStr      (StackErr_t error, const char* line[]);
 StackErr_t StackDump          (Stack_t* stack, StackErr_t error, const char* reason_of_calling);

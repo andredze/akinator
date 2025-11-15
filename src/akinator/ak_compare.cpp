@@ -8,40 +8,86 @@ TreeErr_t AkinatorExecuteCompare(AkinatorCtx_t* ak_ctx)
 
     TreeErr_t error = TREE_SUCCESS;
 
-    char word1[MAX_INPUT_LEN] = {};
-    char word2[MAX_INPUT_LEN] = {};
-
     Speak(BLUE, "—равнение двух слов:\n");
+    SpeakFlush();
 
     cprintf(NULL, " ¬ведите первое слово: ");
 
-    SpeakFlush();
+    TreeNode_t* node1  = NULL;
+    TreeNode_t* node2  = NULL;
+    Stack_t     stack1 = {};
+    Stack_t     stack2 = {};
 
-    if (scanf("%1023[^\n]", word1) != 1)
+    if (GetPathStack(&ak_ctx->tree, &node1, &stack1))
     {
-        PRINTERR("Scanf failed");
-        return TREE_INVALID_INPUT;
+        return TREE_SUCCESS;
     }
-
-    CleanBuffer();
 
     cprintf(NULL, " ¬ведите второе слово: ");
 
-    SpeakFlush();
-
-    if (scanf("%1023[^\n]", word2) != 1)
+    if (GetPathStack(&ak_ctx->tree, &node2, &stack2))
     {
-        PRINTERR("Scanf failed");
-        return TREE_INVALID_INPUT;
+        StackDtor(&stack1);
+        return TREE_SUCCESS;
+    }
+
+    printf("\n");
+
+    if ((error = AkinatorCompareNodes(&stack1, &stack2, node1, node2)))
+    {
+        return error;
+    }
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t GetPathStack(Tree_t* tree, TreeNode_t** node, Stack_t* stack)
+{
+    assert(node  != NULL);
+    assert(stack != NULL);
+
+    DEBUG_TREE_CHECK(tree, "ERROR BEFORE AKINATOR COMPARE WORDS");
+
+    if (StackCtor(stack, STACK_MIN_CAPACITY))
+    {
+        return TREE_STACK_ERR;
+    }
+
+    TreeErr_t error = TREE_SUCCESS;
+
+    if ((error = FillPathStack(tree, node, stack)))
+    {
+        return error;
+    }
+
+    return TREE_SUCCESS;
+}
+
+//------------------------------------------------------------------------------------------
+
+TreeErr_t FillPathStack(Tree_t* tree, TreeNode_t** node, Stack_t* stack)
+{
+    char word[MAX_INPUT_LEN] = {};
+
+    while (scanf("%1023[^\n]", word) != 1)
+    {
+        CleanBuffer();
+        Speak(RED, "ќшибка ввода, введите еще раз\n");
+        SpeakFlush();
     }
 
     CleanBuffer();
 
-    printf("\n");
+    *node = TreeSearch(tree->dummy->right, word, stack);
 
-    if ((error = AkinatorCompareWords(&ak_ctx->tree, word1, word2)))
+    if (*node == NULL)
     {
-        return error;
+        Speak(RED, "—лова %s нет в базе!\n", word);
+        SpeakFlush();
+        StackDtor(stack);
+        return TREE_INVALID_INPUT;
     }
 
     return TREE_SUCCESS;
@@ -49,87 +95,65 @@ TreeErr_t AkinatorExecuteCompare(AkinatorCtx_t* ak_ctx)
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t AkinatorCompareWords(Tree_t* tree, const char* word1, const char* word2)
+TreeErr_t AkinatorCompareNodes(Stack_t* stack1,
+                               Stack_t* stack2,
+                               const TreeNode_t* node1,
+                               const TreeNode_t* node2)
 {
-    assert(word1 != NULL);
-    assert(word2 != NULL);
-
-    DEBUG_TREE_CHECK(tree, "ERROR BEFORE AKINATOR COMPARE WORDS");
+    assert(node1 != NULL);
+    assert(node2 != NULL);
 
     TreeErr_t error = TREE_SUCCESS;
 
-    Stack_t stack1       = {};
-    Stack_t stack2       = {};
-    Stack_t common_stack = {};
+    size_t pos1 = 0;
+    size_t pos2 = 0;
 
-    TreeNode_t* node1 = TreeSearch(tree->dummy->right, word1);
-    if (node1 == NULL)
+    if ((error = FindFirstDifference(stack1, stack2, &pos1, &pos2)))
     {
-        Speak(RED, "—лова %s нет в базе!\n", word1);
-        SpeakFlush();
-        return TREE_SUCCESS;
-    }
-
-    TreeNode_t* node2 = TreeSearch(tree->dummy->right, word2);
-    if (node2 == NULL)
-    {
-        Speak(RED, "—лова %s нет в базе!\n", word2);
-        SpeakFlush();
-        return TREE_SUCCESS;
-    }
-
-    if ((error = GetComparisonStacks(&stack1, &stack2, &common_stack, node1, node2, tree)))
-    {
+        StackDtor(stack1);
+        StackDtor(stack2);
         return error;
     }
 
-    PrintComparison(word1, word2, &stack1, &stack2, &common_stack);
+    PrintComparison(stack1, stack2, node1, node2, pos1, pos2);
 
-    DestroyComparisonStacks(&stack1, &stack2, &common_stack);
+    StackDtor(stack1);
+    StackDtor(stack2);
 
     return TREE_SUCCESS;
 }
 
 //------------------------------------------------------------------------------------------
 
-void PrintComparison(const char* word1, const char* word2,
-                     Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack)
+void PrintComparison(Stack_t* stack1,
+                     Stack_t* stack2,
+                     const TreeNode_t* node1,
+                     const TreeNode_t* node2,
+                     size_t pos1,
+                     size_t pos2)
 {
-    assert(word1        != NULL);
-    assert(word2        != NULL);
-    assert(stack1       != NULL);
-    assert(stack2       != NULL);
-    assert(common_stack != NULL);
+    assert(stack1 != NULL);
+    assert(stack2 != NULL);
+    assert(node1  != NULL);
+    assert(node2  != NULL);
 
-    Speak(BLUE, "—равнение %s и %s:\n", word1, word2);
+    Speak(BLUE, "—равнение %s и %s:\n", node1->data, node2->data);
 
-    if (common_stack->size > 0)
+    if (pos1 != stack1->size - 1)
     {
-        Speak(NULL, " %s, как и %s ", word1, word2);
-        PrintStackWordPath(common_stack);
+        Speak(NULL, " %s, как и %s ", node1->data, node2->data);
+        PrintStackWordPath(stack1, stack1->size - 1, pos1 + 1);
     }
     else
     {
-        Speak(NULL, " %s и %s не имеют ничего общего\n", word1, word2);
+        Speak(NULL, " %s и %s не имеют ничего общего\n", node1->data, node2->data);
     }
-    if (stack1->size > 0)
-    {
-        Speak(NULL, " но %s ", word1);
-        PrintStackWordPath(stack1);
-    }
-    else
-    {
-        Speak(NULL, " и %s не имеет отличительных свойств", word1);
-    }
-    if (stack2->size > 0)
-    {
-        Speak(NULL, " а %s ", word2);
-        PrintStackWordPath(stack2);
-    }
-    else
-    {
-        Speak(NULL, " и %s не имеет отличительных свойств", word2);
-    }
+
+    Speak(NULL, " но %s ", node1->data);
+    PrintStackWordPath(stack1, pos1, 0);
+
+    Speak(NULL, " а %s ", node2->data);
+    PrintStackWordPath(stack2, pos2, 0);
 
     printf("\n");
 
@@ -138,110 +162,50 @@ void PrintComparison(const char* word1, const char* word2,
 
 //------------------------------------------------------------------------------------------
 
-TreeErr_t GetComparisonStacks(Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack,
-                              TreeNode_t* node1, TreeNode_t* node2, Tree_t* tree)
+TreeErr_t FindFirstDifference(Stack_t* stack1,   Stack_t* stack2,
+                              size_t*  pos1_ptr, size_t*  pos2_ptr)
 {
-    assert(stack1       != NULL);
-    assert(stack2       != NULL);
-    assert(common_stack != NULL);
+    assert(stack1   != NULL);
+    assert(stack2   != NULL);
+    assert(pos1_ptr != NULL);
+    assert(pos2_ptr != NULL);
 
-    TreeErr_t error = TREE_SUCCESS;
+    size_t pos1 = 0;
+    size_t pos2 = 0;
 
-    if (ConstructComparisonStacks(stack1, stack2, common_stack))
-    {
+    if (StackGetSize(stack1, &pos1))
         return TREE_STACK_ERR;
-    }
-    if ((error = GetStackWordPath(tree, node1, stack1)))
-    {
-        DestroyComparisonStacks(stack1, stack2, common_stack);
-        return error;
-    }
-    if ((error = GetStackWordPath(tree, node2, stack2)))
-    {
-        DestroyComparisonStacks(stack1, stack2, common_stack);
-        return error;
-    }
-    if ((error = GetCommonConditionsStack(tree, stack1, stack2, common_stack)))
-    {
-        DestroyComparisonStacks(stack1, stack2, common_stack);
-        return error;
-    }
 
-    return TREE_SUCCESS;
-}
-
-//------------------------------------------------------------------------------------------
-
-TreeErr_t ConstructComparisonStacks(Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack)
-{
-    assert(stack1       != NULL);
-    assert(stack2       != NULL);
-    assert(common_stack != NULL);
-
-    if (StackCtor(stack1, STACK_MIN_CAPACITY))
-    {
+    if (StackGetSize(stack2, &pos2))
         return TREE_STACK_ERR;
-    }
-    if (StackCtor(stack2, STACK_MIN_CAPACITY))
+
+    TreeStep_t step1 = {};
+    TreeStep_t step2 = {};
+
+    // DPRINTF("pos1 = %zu; pos2 = %zu\n", pos1, pos2);
+
+    while (pos1 != 0 && pos2 != 0)
     {
-        StackDtor(stack1);
-        return TREE_STACK_ERR;
-    }
-    if (StackCtor(common_stack, STACK_MIN_CAPACITY))
-    {
-        StackDtor(stack1);
-        StackDtor(stack2);
-        return TREE_STACK_ERR;
-    }
-
-    return TREE_SUCCESS;
-}
-
-//------------------------------------------------------------------------------------------
-
-void DestroyComparisonStacks(Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack)
-{
-    StackDtor(common_stack);
-    StackDtor(stack1);
-    StackDtor(stack2);
-}
-
-//------------------------------------------------------------------------------------------
-
-TreeErr_t GetCommonConditionsStack(const Tree_t* tree, Stack_t* stack1, Stack_t* stack2, Stack_t* common_stack)
-{
-    assert(common_stack != NULL);
-    assert(stack1       != NULL);
-    assert(stack2       != NULL);
-
-    TreeStep_t step1           = {};
-    TreeStep_t step2           = {};
-    TreeStep_t first_diff_step = {};
-
-    while (1)
-    {
-        if (StackPop(stack1, &step1))
+        if (StackGetElement(stack1, pos1, &step1))
             return TREE_STACK_ERR;
 
-        if (StackPop(stack2, &step2))
+        if (StackGetElement(stack2, pos2, &step2))
             return TREE_STACK_ERR;
 
         if (!(TreeStepsEqual(&step1, &step2)))
         {
-            first_diff_step = step1;
-
-            if (StackPush(stack1, step1))
-                return TREE_STACK_ERR;
-
-            if (StackPush(stack2, step2))
-                return TREE_STACK_ERR;
-
+            DPRINTF("unequal words = %s and %s\n", step1.node->data, step2.node->data);
             break;
         }
+
+        pos1--;
+        pos2--;
     }
 
-    if (GetStackWordPath(tree, first_diff_step.node, common_stack))
-        return TREE_STACK_ERR;
+    // DPRINTF("pos1 = %zu; pos2 = %zu\n", pos1, pos2);
+
+    *pos1_ptr = pos1;
+    *pos2_ptr = pos2;
 
     return TREE_SUCCESS;
 }
@@ -267,7 +231,7 @@ int TreeStepsEqual(TreeStep_t* step1, TreeStep_t* step2)
 
 //------------------------------------------------------------------------------------------
 
-TreeNode_t* TreeSearch(TreeNode_t* node, const char* word)
+TreeNode_t* TreeSearch(TreeNode_t* node, const char* word, Stack_t* stack)
 {
     if (node == NULL)
     {
@@ -281,12 +245,22 @@ TreeNode_t* TreeSearch(TreeNode_t* node, const char* word)
 
     TreeNode_t* ret = NULL;
 
-    if ((ret = TreeSearch(node->left, word)) != NULL)
+    if ((ret = TreeSearch(node->left, word, stack)) != NULL)
     {
+        if (StackPush(stack, {node, 'y'}))
+        {
+            return NULL;
+        }
+
         return ret;
     }
-    if ((ret = TreeSearch(node->right, word)) != NULL)
+    if ((ret = TreeSearch(node->right, word, stack)) != NULL)
     {
+        if (StackPush(stack, {node, 'n'}))
+        {
+            return NULL;
+        }
+
         return ret;
     }
 
