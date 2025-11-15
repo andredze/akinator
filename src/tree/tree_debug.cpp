@@ -16,10 +16,10 @@ int SetDirectories(char* log_filename, char* log_dir)
     static char image_dir [MAX_FILENAME_LEN] = "";
     static char dot_dir   [MAX_FILENAME_LEN] = "";
 
-    strftime(time_dir, sizeof(time_dir), "%Y-%m-%d_%H%M%S", info);
+    strftime(time_dir, sizeof(time_dir), "[%Y-%m-%d_%H%M%S]", info);
 
     snprintf(log_dir, MAX_FILENAME_LEN, "log/%s", time_dir);
-    printf("log/%s", time_dir);
+    DPRINTF("log_dir: log/%s\n", time_dir);
     mkdir(log_dir);
 
     snprintf(image_dir, sizeof(image_dir), "log/%s/svg", time_dir);
